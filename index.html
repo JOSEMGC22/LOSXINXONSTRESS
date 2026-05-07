@@ -35,17 +35,18 @@ body{
   text-align:center;
 
   background:
-    linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.9)),
+    linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.9)),
     url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop")
     center/cover;
 }
 
 #introText{
+
   max-width:900px;
 
   font-size:clamp(18px,2vw,30px);
 
-  line-height:1.8;
+  line-height:1.4;
 
   white-space:pre-line;
 
@@ -53,6 +54,7 @@ body{
 }
 
 #startBtn{
+
   display:none;
 
   margin-top:40px;
@@ -78,6 +80,7 @@ body{
 
 /* 🎮 GAME */
 #game{
+
   display:none;
 
   width:100vw;
@@ -88,41 +91,51 @@ body{
   flex-direction:column;
 
   background:
-    linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.6)),
+    linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.65)),
     url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1600&auto=format&fit=crop")
     center/cover;
 }
 
 /* TOP */
 #top{
+
   text-align:center;
   margin-bottom:15px;
 }
 
 #title{
+
   font-size:28px;
   font-weight:bold;
   margin-bottom:10px;
+
   text-shadow:0 0 15px black;
 }
 
 #timer{
+
   font-size:24px;
   color:#ffd166;
   font-weight:bold;
+
   text-shadow:0 0 15px black;
 }
 
 /* GRID */
 #grid{
+
   display:grid;
+
   grid-template-columns:repeat(10, 68px);
+
   gap:8px;
+
   justify-content:center;
 }
 
 /* CARDS */
 .card{
+
   width:68px;
   height:68px;
 
@@ -144,13 +157,16 @@ body{
 }
 
 .card img{
+
   width:100%;
   height:100%;
+
   object-fit:cover;
 }
 
 /* 🔓 FINAL */
 #final{
+
   display:none;
 
   position:absolute;
@@ -171,25 +187,36 @@ body{
 }
 
 #final h2{
+
   font-size:clamp(34px,6vw,60px);
 }
 
 #countdown{
+
   font-size:clamp(28px,5vw,50px);
+
   margin:25px;
+
   color:#ffd166;
 }
 
 #final p{
+
   font-size:22px;
+
   max-width:800px;
+
   line-height:1.7;
 }
 
 #final a{
+
   margin-top:25px;
+
   color:#ffd166;
+
   font-size:26px;
+
   font-weight:bold;
 }
 
@@ -197,11 +224,14 @@ body{
 @media(max-width:900px){
 
   #grid{
+
     grid-template-columns:repeat(10, 32px);
+
     gap:4px;
   }
 
   .card{
+
     width:32px;
     height:32px;
   }
@@ -290,7 +320,7 @@ function bip(freq,time){
   osc.stop(audio.currentTime + time);
 }
 
-/* 🎧 MÚSICA */
+/* 🎧 MUSICA */
 function startMusic(){
 
   let osc = audio.createOscillator();
@@ -307,28 +337,29 @@ function startMusic(){
   osc.start();
 
   setInterval(()=>{
-    osc.frequency.value = 90 + Math.random()*40;
+
+    osc.frequency.value =
+      90 + Math.random()*40;
+
   },900);
 }
 
-/* 🎬 TEXTO INTRO */
-const introText = document.getElementById("introText");
-const startBtn = document.getElementById("startBtn");
+/* 🎬 INTRO TEXTO */
+const introText =
+  document.getElementById("introText");
+
+const startBtn =
+  document.getElementById("startBtn");
 
 const message =
 `DETECTANDO USUARIOS CONECTADOS
-PARA VERIFICAR AUTORIZACION...............
+PARA VERIFICAR AUTORIZACION
 
-
-YAIZA......
-
-YAEL......
-
-JOEL............
-
+YAIZA
+YAEL
+JOEL
 
 SOLICITUD AUTORIZADA
-
 
 TENEIS 6 MINUTOS PARA COMPLETAR
 EL JUEGO DE LAS PAREJAS SIGUIENTES
@@ -342,34 +373,46 @@ function typeText(){
 
     introText.innerHTML += message[index];
 
-    if(message[index] !== " " && message[index] !== "\n"){
-      bip(180 + Math.random()*120,0.02);
+    if(
+      message[index] !== " " &&
+      message[index] !== "\n"
+    ){
+
+      bip(
+        180 + Math.random()*120,
+        0.02
+      );
     }
 
     index++;
 
-    setTimeout(typeText,35);
+    setTimeout(typeText,30);
 
   }else{
 
-    setTimeout(()=>{
-      startBtn.style.display = "block";
-    },700);
+    startBtn.style.display = "block";
   }
 }
 
 typeText();
 
-/* 📸 IMÁGENES */
+/* 📸 IMAGENES */
 const images = [
 
 "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?q=80&w=800&auto=format&fit=crop",
+
 "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=800&auto=format&fit=crop"
 
 ];
@@ -382,39 +425,57 @@ let lockBoard = false;
 let time = 360;
 let timerInterval;
 
-/* 🎮 START GAME */
+/* 🎮 START */
 function startGame(){
 
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("game").style.display = "flex";
+  document.getElementById("intro")
+    .style.display = "none";
+
+  document.getElementById("game")
+    .style.display = "flex";
 
   startMusic();
 
   generateCards();
+
   renderCards();
 
-  timerInterval = setInterval(updateTimer,1000);
+  timerInterval =
+    setInterval(updateTimer,1000);
 }
 
-/* 🔁 GENERATE */
+/* 🔁 GENERAR */
 function generateCards(){
 
   cards = [];
 
   for(let i=0;i<50;i++){
 
-    let img = images[Math.floor(Math.random()*images.length)];
+    let img =
+      images[
+        Math.floor(
+          Math.random()*images.length
+        )
+      ];
 
     cards.push({
+
       unique:i+"a",
+
       pair:i,
+
       img
+
     });
 
     cards.push({
+
       unique:i+"b",
+
       pair:i,
+
       img
+
     });
   }
 
@@ -424,18 +485,22 @@ function generateCards(){
 /* 🎨 RENDER */
 function renderCards(){
 
-  const grid = document.getElementById("grid");
+  const grid =
+    document.getElementById("grid");
 
   grid.innerHTML = "";
 
   cards.forEach(card=>{
 
-    let div = document.createElement("div");
+    let div =
+      document.createElement("div");
 
     div.className = "card";
 
     div.dataset.pair = card.pair;
+
     div.dataset.unique = card.unique;
+
     div.dataset.img = card.img;
 
     div.onclick = ()=>flip(div);
@@ -444,7 +509,7 @@ function renderCards(){
   });
 }
 
-/* 🔄 FLIP */
+/* 🔄 GIRAR */
 function flip(card){
 
   if(lockBoard) return;
@@ -455,7 +520,9 @@ function flip(card){
 
   bip(320,0.04);
 
-  let img = document.createElement("img");
+  let img =
+    document.createElement("img");
+
   img.src = card.dataset.img;
 
   card.appendChild(img);
@@ -470,7 +537,7 @@ function flip(card){
   }
 }
 
-/* ✔ CHECK */
+/* ✔ COMPROBAR */
 function checkMatch(){
 
   const [a,b] = selected;
@@ -482,9 +549,11 @@ function checkMatch(){
     bip(800,0.08);
 
     selected = [];
+
     lockBoard = false;
 
     if(matched === 100){
+
       win();
     }
 
@@ -495,9 +564,11 @@ function checkMatch(){
     setTimeout(()=>{
 
       a.innerHTML = "";
+
       b.innerHTML = "";
 
       selected = [];
+
       lockBoard = false;
 
     },300);
@@ -509,52 +580,72 @@ function updateTimer(){
 
   time--;
 
-  let m = Math.floor(time/60);
-  let s = time%60;
+  let m =
+    Math.floor(time/60);
 
-  let txt = `${m}:${s<10?"0"+s:s}`;
+  let s =
+    time%60;
 
-  document.getElementById("timer").innerText =
-    `TIEMPO RESTANTE: ${txt}`;
+  let txt =
+    `${m}:${s<10?"0"+s:s}`;
+
+  document.getElementById("timer")
+    .innerText =
+      `TIEMPO RESTANTE: ${txt}`;
 
   if(time <= 0){
 
-    alert("⏳ TIEMPO AGOTADO - REINICIANDO SISTEMA");
+    alert(
+      "⏳ TIEMPO AGOTADO - REINICIANDO SISTEMA"
+    );
 
     location.reload();
   }
 }
 
-/* ❤️ WIN */
+/* ❤️ FINAL */
 function win(){
 
   clearInterval(timerInterval);
 
-  document.getElementById("game").style.display = "none";
-  document.getElementById("final").style.display = "flex";
+  document.getElementById("game")
+    .style.display = "none";
+
+  document.getElementById("final")
+    .style.display = "flex";
 
   const target =
-    new Date("2026-12-26T00:00:00").getTime();
+    new Date("2026-12-26T00:00:00")
+      .getTime();
 
   setInterval(()=>{
 
     let now = Date.now();
 
-    let diff = target - now;
+    let diff =
+      target - now;
 
-    let days = Math.floor(diff / 86400000);
+    let days =
+      Math.floor(diff / 86400000);
 
     let hours =
-      Math.floor((diff % 86400000)/3600000);
+      Math.floor(
+        (diff % 86400000)/3600000
+      );
 
     let mins =
-      Math.floor((diff % 3600000)/60000);
+      Math.floor(
+        (diff % 3600000)/60000
+      );
 
     let secs =
-      Math.floor((diff % 60000)/1000);
+      Math.floor(
+        (diff % 60000)/1000
+      );
 
-    document.getElementById("countdown").innerText =
-      `${days}d ${hours}h ${mins}m ${secs}s`;
+    document.getElementById("countdown")
+      .innerText =
+        `${days}d ${hours}h ${mins}m ${secs}s`;
 
   },1000);
 }
