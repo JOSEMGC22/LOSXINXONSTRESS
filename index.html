@@ -1,401 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE VERIFICACIÓN DE IDENTIDAD</title>
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --dark-bg: #0a0a0a;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-transform: uppercase;
+        }
+
+        /* Efecto de líneas de monitor antiguo */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        #intro, #game, #final {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        #introText {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            min-height: 200px;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--neon-green);
+            border: 2px solid var(--neon-green);
+            padding: 15px 30px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .btn:hover {
+            background: var(--neon-green);
+            color: black;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        /* Grid de Juego */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 60px;
+            height: 60px;
+            border: 1px solid var(--neon-green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: #111;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #timer {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            letter-spacing: 4px;
+        }
+
+        #countdown {
+            font-size: 3rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECCIÓN INTRO -->
+    <div id="intro">
+        <div id="introText"></div>
+        <button id="startBtn" class="btn" onclick="startGame()">INICIAR PROTOCOLO</button>
+    </div>
+
+    <!-- SECCIÓN JUEGO -->
+    <div id="game" style="display: none;">
+        <div id="timer">TIEMPO: 06:00</div>
+        <div id="grid"></div>
+    </div>
+
+    <!-- SECCIÓN FINAL -->
+    <div id="final" style="display: none;">
+        <h2>ACCESO TOTAL CONCEDIDO</h2>
+        <p>REINICIO DE SISTEMA EN:</p>
+        <div id="countdown"></div>
+    </div>
+
 <script>
+/* 🔊 MOTOR DE AUDIO REFACTORIZADO */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-/* 🔊 AUDIO */
-const audio = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(freq, type, duration, vol) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
 
-function bip(freq,time){
-
-  let osc = audio.createOscillator();
-  let gain = audio.createGain();
-
-  osc.frequency.value = freq;
-  osc.type = "square";
-
-  gain.gain.value = 0.03;
-
-  osc.connect(gain);
-  gain.connect(audio.destination);
-
-  osc.start();
-  osc.stop(audio.currentTime + time);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
 }
 
-/* 🎧 MÚSICA */
-function startMusic(){
+function startMusic() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+    gain.gain.value = 0.01;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
 
-  let osc = audio.createOscillator();
-  let gain = audio.createGain();
-
-  osc.type = "sine";
-  osc.frequency.value = 110;
-
-  gain.gain.value = 0.015;
-
-  osc.connect(gain);
-  gain.connect(audio.destination);
-
-  osc.start();
-
-  setInterval(()=>{
-
-    osc.frequency.value =
-      90 + Math.random()*40;
-
-  },900);
+    setInterval(() => {
+        osc.frequency.exponentialRampToValueAtTime(90 + Math.random() * 40, audioCtx.currentTime + 0.8);
+    }, 900);
 }
 
-/* 🎬 INTRO */
-const introText =
-  document.getElementById("introText");
-
-const startBtn =
-  document.getElementById("startBtn");
-
-/* ✍️ ESCRITURA CINEMATOGRÁFICA */
+/* ✍️ LÓGICA DE ESCRITURA */
 const lines = [
-
-"DETECTANDO USUARIOS CONECTADOS",
-"PARA VERIFICAR AUTORIZACION",
-
-"",
-"",
-
-"YAIZA",
-
-"",
-"",
-
-"YAEL",
-
-"",
-"",
-
-"JOEL",
-
-"",
-"",
-
-"SOLICITUD AUTORIZADA",
-
-"",
-"",
-
-"TENEIS 6 MINUTOS PARA COMPLETAR",
-"EL JUEGO DE LAS PAREJAS SIGUIENTES",
-"PARA PASAR A LA SIGUIENTE FASE"
-
+    "CONECTANDO CON EL SERVIDOR CENTRAL...",
+    "ESTABLECIENDO PROTOCOLO SEGURO...",
+    "VERIFICANDO CREDENCIALES BIOMÉTRICAS...",
+    "",
+    "USUARIOS DETECTADOS EN LA ZONA:",
+    "> YAIZA",
+    "> YAEL",
+    "> JOEL",
+    "",
+    "SOLICITUD DE ACCESO: AUTORIZADA",
+    "",
+    "ATENCIÓN: EL SISTEMA SE BLOQUEARÁ EN 6 MINUTOS.",
+    "RESUELVAN EL ACERTIJO DE EMPAREJAMIENTO PARA CONTINUAR."
 ];
 
-let currentLine = 0;
-let currentChar = 0;
+let lineIdx = 0, charIdx = 0;
+const introDiv = document.getElementById("introText");
 
-function typeLine(){
-
-  if(currentLine >= lines.length){
-
-    setTimeout(()=>{
-
-      startBtn.style.display = "block";
-
-    },1000);
-
-    return;
-  }
-
-  let line = lines[currentLine];
-
-  if(currentChar < line.length){
-
-    introText.innerHTML += line[currentChar];
-
-    bip(
-      180 + Math.random()*120,
-      0.02
-    );
-
-    currentChar++;
-
-    setTimeout(typeLine,55);
-
-  }else{
-
-    introText.innerHTML += "<br>";
-
-    currentLine++;
-    currentChar = 0;
-
-    // ⏸ PAUSAS
-    let pause = 400;
-
-    if(
-      line === "YAIZA" ||
-      line === "YAEL" ||
-      line === "JOEL"
-    ){
-      pause = 1200;
+function type() {
+    if (lineIdx < lines.length) {
+        let currentLine = lines[lineIdx];
+        if (charIdx < currentLine.length) {
+            introDiv.innerHTML += currentLine[charIdx];
+            playSound(200 + Math.random() * 100, 'square', 0.05, 0.02);
+            charIdx++;
+            setTimeout(type, 40);
+        } else {
+            introDiv.innerHTML += "<br>";
+            lineIdx++;
+            charIdx = 0;
+            let delay = currentLine.includes(">") ? 800 : 400;
+            setTimeout(type, delay);
+        }
+    } else {
+        document.getElementById("startBtn").style.display = "block";
     }
-
-    if(
-      line === "SOLICITUD AUTORIZADA"
-    ){
-      pause = 1500;
-    }
-
-    setTimeout(typeLine,pause);
-  }
 }
 
-typeLine();
+// Iniciar escritura al cargar
+window.onload = type;
 
-/* 📸 IMÁGENES */
+/* 🎮 LÓGICA DEL JUEGO */
 const images = [
-
-"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1473116763249-2faaef81ccda?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?q=80&w=800&auto=format&fit=crop",
-
-"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=800&auto=format&fit=crop"
-
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200",
+    "https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=200",
+    "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=200",
+    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=200",
+    "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?w=200",
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=200",
+    "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=200",
+    "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=200"
 ];
 
-let cards = [];
-let selected = [];
-let matched = 0;
-let lockBoard = false;
+let cards = [], selected = [], matchedCount = 0, timeLeft = 360;
+let lockBoard = false, timerInterval;
 
-let time = 360;
-let timerInterval;
-
-/* 🎮 START */
-function startGame(){
-
-  document.getElementById("intro")
-    .style.display = "none";
-
-  document.getElementById("game")
-    .style.display = "flex";
-
-  startMusic();
-
-  generateCards();
-
-  renderCards();
-
-  timerInterval =
-    setInterval(updateTimer,1000);
+function startGame() {
+    audioCtx.resume(); // Necesario para navegadores modernos
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("game").style.display = "flex";
+    startMusic();
+    setupBoard();
+    timerInterval = setInterval(updateTimer, 1000);
 }
 
-/* 🔁 GENERAR */
-function generateCards(){
-
-  cards = [];
-
-  for(let i=0;i<50;i++){
-
-    let img =
-      images[i % images.length];
-
-    cards.push({
-
-      id:"a"+i,
-      pair:i,
-      img
-
-    });
-
-    cards.push({
-
-      id:"b"+i,
-      pair:i,
-      img
-
-    });
-  }
-
-  cards.sort(()=>Math.random()-0.5);
-}
-
-/* 🎨 RENDER */
-function renderCards(){
-
-  const grid =
-    document.getElementById("grid");
-
-  grid.innerHTML = "";
-
-  cards.forEach(card=>{
-
-    let div =
-      document.createElement("div");
-
-    div.className = "card";
-
-    div.dataset.pair = card.pair;
-    div.dataset.id = card.id;
-    div.dataset.img = card.img;
-    div.dataset.matched = "false";
-
-    div.onclick = ()=>flip(div);
-
-    grid.appendChild(div);
-  });
-}
-
-/* 🔄 GIRAR */
-function flip(card){
-
-  if(lockBoard) return;
-
-  if(card.querySelector("img")) return;
-
-  if(card.dataset.matched === "true") return;
-
-  bip(320,0.04);
-
-  let img =
-    document.createElement("img");
-
-  img.src = card.dataset.img;
-
-  card.appendChild(img);
-
-  selected.push(card);
-
-  if(selected.length === 2){
-
-    lockBoard = true;
-
-    setTimeout(checkMatch,900);
-  }
-}
-
-/* ✔ COMPROBAR */
-function checkMatch(){
-
-  const [a,b] = selected;
-
-  if(
-    a.dataset.pair === b.dataset.pair &&
-    a.dataset.id !== b.dataset.id
-  ){
-
-    a.dataset.matched = "true";
-    b.dataset.matched = "true";
-
-    matched += 2;
-
-    bip(800,0.08);
-
-    selected = [];
-
-    lockBoard = false;
-
-    if(matched === 100){
-
-      win();
+function setupBoard() {
+    // Crear 50 parejas (100 cartas) usando las 8 imágenes
+    let tempCards = [];
+    for(let i=0; i<50; i++) {
+        let img = images[i % images.length];
+        tempCards.push({ id: i, img: img });
+        tempCards.push({ id: i, img: img });
     }
+    cards = tempCards.sort(() => Math.random() - 0.5);
 
-  }else{
-
-    bip(120,0.1);
-
-    setTimeout(()=>{
-
-      a.innerHTML = "";
-      b.innerHTML = "";
-
-      selected = [];
-
-      lockBoard = false;
-
-    },400);
-  }
+    const grid = document.getElementById("grid");
+    cards.forEach((card, index) => {
+        const cardEl = document.createElement("div");
+        cardEl.className = "card";
+        cardEl.dataset.id = card.id;
+        cardEl.dataset.index = index;
+        cardEl.onclick = () => flipCard(cardEl, card.img);
+        grid.appendChild(cardEl);
+    });
 }
 
-/* ⏳ TIMER */
-function updateTimer(){
+function flipCard(el, imgUrl) {
+    if (lockBoard || el.classList.contains('flipped')) return;
 
-  time--;
+    playSound(440, 'sine', 0.1, 0.05);
+    el.classList.add('flipped');
+    el.innerHTML = `<img src="${imgUrl}">`;
+    selected.push(el);
 
-  let m =
-    Math.floor(time/60);
-
-  let s =
-    time%60;
-
-  let txt =
-    `${m}:${s<10?"0"+s:s}`;
-
-  document.getElementById("timer")
-    .innerText =
-      `TIEMPO RESTANTE: ${txt}`;
-
-  if(time <= 0){
-
-    alert(
-      "⏳ TIEMPO AGOTADO - REINICIANDO SISTEMA"
-    );
-
-    location.reload();
-  }
+    if (selected.length === 2) {
+        lockBoard = true;
+        setTimeout(checkMatch, 600);
+    }
 }
 
-/* ❤️ FINAL */
-function win(){
-
-  clearInterval(timerInterval);
-
-  document.getElementById("game")
-    .style.display = "none";
-
-  document.getElementById("final")
-    .style.display = "flex";
-
-  const target =
-    new Date("2026-12-26T00:00:00")
-      .getTime();
-
-  setInterval(()=>{
-
-    let now = Date.now();
-
-    let diff =
-      target - now;
-
-    let days =
-      Math.floor(diff / 86400000);
-
-    let hours =
-      Math.floor(
-        (diff % 86400000)/3600000
-      );
-
-    let mins =
-      Math.floor(
-        (diff % 3600000)/60000
-      );
-
-    let secs =
-      Math.floor(
-        (diff % 60000)/1000
-      );
-
-    document.getElementById("countdown")
-      .innerText =
-        `${days}d ${hours}h ${mins}m ${secs}s`;
-
-  },1000);
+function checkMatch() {
+    const [c1, c2] = selected;
+    if (c1.dataset.id === c2.dataset.id) {
+        playSound(880, 'sine', 0.2, 0.05);
+        matchedCount += 2;
+        selected = [];
+        lockBoard = false;
+        if (matchedCount === 100) win();
+    } else {
+        playSound(150, 'sawtooth', 0.2, 0.05);
+        setTimeout(() => {
+            c1.innerHTML = "";
+            c2.innerHTML = "";
+            c1.classList.remove('flipped');
+            c2.classList.remove('flipped');
+            selected = [];
+            lockBoard = false;
+        }, 300);
+    }
 }
 
+function updateTimer() {
+    timeLeft--;
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    document.getElementById("timer").innerText = `TIEMPO: ${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+    
+    if (timeLeft <= 0) {
+        alert("SISTEMA BLOQUEADO. REINICIANDO...");
+        location.reload();
+    }
+}
+
+function win() {
+    clearInterval(timerInterval);
+    document.getElementById("game").style.display = "none";
+    document.getElementById("final").style.display = "flex";
+    
+    const target = new Date("2026-12-26T00:00:00").getTime();
+    setInterval(() => {
+        const now = Date.now();
+        const diff = target - now;
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById("countdown").innerText = `${d}d ${h}h ${m}m ${s}s`;
+    }, 1000);
+}
 </script>
-````
+</body>
+</html>
