@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA DE VERIFICACIÓN DE PAREJAS</title>
+    <title>PROTOCOLO VACACIONES - SISTEMA DE SEGURIDAD</title>
     <style>
         :root {
             --neon-green: #39ff14;
             --dark-bg: #0a0a0a;
-            --grid-size: 10; /* 10x10 = 100 cartas */
+            --grid-size: 8; /* Tablero 8x8 */
         }
 
         body {
@@ -42,13 +42,13 @@
             flex-direction: column;
             align-items: center;
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
         }
 
         #introText {
             font-size: 1.2rem;
             line-height: 1.5;
-            min-height: 200px;
+            min-height: 250px;
             text-shadow: 0 0 5px var(--neon-green);
         }
 
@@ -62,7 +62,7 @@
             margin-top: 20px;
             transition: all 0.3s;
             display: none;
-            z-index: 20; /* Asegurar que el botón esté sobre el efecto CRT */
+            z-index: 20;
         }
 
         .btn:hover {
@@ -71,91 +71,82 @@
             box-shadow: 0 0 20px var(--neon-green);
         }
 
-        /* Grid de Juego */
-        #gridContainer {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
+        /* Grid de Juego 8x8 */
         #grid {
             display: grid;
             grid-template-columns: repeat(var(--grid-size), 1fr);
-            gap: 5px;
+            gap: 8px;
             width: 100%;
-            max-width: 650px; /* Limitar el ancho máximo para que no se deforme */
+            max-width: 750px; /* Más ancho para cartas más grandes */
         }
 
         .card {
-            aspect-ratio: 1 / 1; /* Mantener formato cuadrado */
-            border: 1px solid var(--neon-green);
+            aspect-ratio: 1 / 1;
+            border: 2px solid var(--neon-green);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             background: #111;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
+            font-size: 2.5rem; /* Tamaño de los símbolos */
+            user-select: none;
+            transition: transform 0.2s, background 0.3s;
         }
 
         .card:hover {
             transform: scale(1.05);
+            background: #1a1a1a;
+        }
+
+        .card .content {
+            display: none;
+        }
+
+        .card.flipped {
             background: #222;
+            transform: rotateY(180deg);
         }
 
-        .card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            visibility: hidden; /* Ocultar imagen inicialmente */
-        }
-
-        .card.flipped img {
-            visibility: visible; /* Mostrar imagen al voltear */
+        .card.flipped .content {
+            display: block;
+            transform: rotateY(180deg);
         }
 
         .card.matched {
-            border: none;
+            border-color: transparent;
             background: transparent;
             cursor: default;
         }
         
-        .card.matched img {
-            visibility: hidden; /* Ocultar imagen de nuevo al acertar */
+        .card.matched .content {
+            opacity: 0.3;
         }
 
         #gameHeader {
             width: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            margin-bottom: 20px;
             font-size: 1.5rem;
-            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-green);
         }
 
-        #countdown {
-            font-size: 3rem;
-            text-align: center;
-        }
+        #countdown { font-size: 3rem; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="intro">
         <div id="introText"></div>
-        <button id="startBtn" class="btn" onclick="startGame()">INICIAR PROTOCOLO</button>
+        <button id="startBtn" class="btn" onclick="startGame()">INICIAR PROTOCOLO CARIBE</button>
     </div>
 
     <div id="game" style="display: none;">
         <div id="gameHeader">
-            <span>PAREJAS: <span id="matches">0</span>/50</span>
+            <span>PAREJAS: <span id="matches">0</span>/32</span>
             <span id="timer">06:00</span>
         </div>
-        <div id="gridContainer">
-            <div id="grid"></div>
-        </div>
+        <div id="grid"></div>
     </div>
 
     <div id="final" style="display: none;">
@@ -165,70 +156,52 @@
     </div>
 
 <script>
-/* 🔊 MOTOR DE AUDIO Y SONIDOS */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(freq, type, duration, vol, rampType = 'linear') {
+function playSound(freq, type, duration, vol) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    
     osc.type = type;
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    if (rampType === 'exponential') {
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-    } else {
-        gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-    }
-
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
 }
 
-// Sonido complejo de fax/router antiguo
 function playFaxSound() {
-    let startTime = audioCtx.currentTime;
-    for(let i=0; i<15; i++) {
-        let f1 = 800 + Math.random() * 1000;
-        let f2 = 1200 + Math.random() * 800;
-        playSound(f1, 'sine', 0.1, 0.02);
-        playSound(f2, 'sawtooth', 0.1, 0.01);
-        startTime += 0.05 + Math.random() * 0.1;
+    for(let i=0; i<20; i++) {
+        setTimeout(() => {
+            playSound(800 + Math.random() * 1200, 'sawtooth', 0.1, 0.01);
+            playSound(400 + Math.random() * 400, 'sine', 0.1, 0.01);
+        }, i * 100);
     }
 }
 
-/* 🖼️ TUS IMÁGENES AQUÍ (LINKS DIRECTOS .jpg) */
-// Asegúrate de que estos enlaces terminan en .jpg
-const images = [
-    "https://i.imgur.com/uR1k3Rk.jpg",
-    "https://i.imgur.com/jIisXNn.jpg",
-    "https://i.imgur.com/7Yf9h9p.jpg",
-    "https://i.imgur.com/vH0HhH0.jpg",
-    "https://i.imgur.com/T0bC0L0.jpg",
-    "https://i.imgur.com/8Yh5j8j.jpg",
-    "https://i.imgur.com/kP8K9k9.jpg",
-    "https://i.imgur.com/mZ2Z3Z3.jpg"
+/* 🌴 SÍMBOLOS TEMÁTICOS */
+const symbols = [
+    "🏝️", "🏖️", "🥥", "🍹", "🍍", "🌊", "☀️", "🚢", // Caribe/Playa
+    "🎄", "🎅", "🎁", "❄️", "🌟", "🔔", "🍪", "🕯️", // Navidad
+    "🎆", "🍾", "🥂", "🎉", "🎈", "🕛", "🍇", "💃", // Nochevieja
+    "🎷", "🎸", "🎵", "🌅", "🦜", "🐚", "🦀", "🐠"  // Extra Caribe
 ];
 
-/* ✍️ LÓGICA DE ESCRITURA CINEMATOGRÁFICA */
 const lines = [
-    "CONECTANDO CON EL SERVIDOR CENTRAL... [OK]",
-    "ESTABLECIENDO PROTOCOLO SEGURO...",
-    "VERIFICANDO CREDENCIALES BIOMÉTRICAS...",
+    "CONECTANDO CON SATÉLITE REGIONAL... [CARIBE_NET]",
+    "CARGANDO PROTOCOLO DE CELEBRACIÓN...",
+    "ESTABLECIENDO CONEXIÓN SEGURA...",
     "",
-    "USUARIOS DETECTADOS EN LA ZONA:",
-    "> YAIZA",
-    "> YAEL",
-    "> JOEL",
+    "USUARIOS DETECTADOS:",
+    "> YAIZA (MODO VACACIONES: ACTIVADO)",
+    "> YAEL (MODO VACACIONES: ACTIVADO)",
+    "> JOEL (MODO VACACIONES: ACTIVADO)",
     "",
-    "SOLICITUD DE ACCESO Nivel IV: AUTORIZADA",
+    "SOLICITUD DE DESCONEXIÓN: APROBADA",
     "",
-    "ATENCIÓN: EL SISTEMA SE BLOQUEARÁ EN 6 MINUTOS.",
-    "RESOLVED EL ACERTIJO DE PAREJAS PARA CONTINUAR."
+    "OBJETIVO: RESOLVER EL TABLERO 8x8 EN 6 MINUTOS.",
+    "ERROR: EL SISTEMA SE AUTODESTRUIRÁ SI NO COMPLETÁIS LA FASE."
 ];
 
 let lineIdx = 0, charIdx = 0;
@@ -239,57 +212,52 @@ function type() {
         let currentLine = lines[lineIdx];
         if (charIdx < currentLine.length) {
             introDiv.innerHTML += currentLine[charIdx];
-            // Sonido de "bip" corto por carácter
-            playSound(200 + Math.random() * 100, 'square', 0.05, 0.01, 'exponential');
+            playSound(300 + Math.random() * 100, 'square', 0.05, 0.01);
             charIdx++;
             setTimeout(type, 40);
         } else {
             introDiv.innerHTML += "<br>";
             lineIdx++;
             charIdx = 0;
-            let delay = currentLine.includes(">") ? 1000 : 400;
-            setTimeout(type, delay);
+            setTimeout(type, currentLine.includes(">") ? 800 : 400);
         }
     } else {
         document.getElementById("startBtn").style.display = "block";
     }
 }
 
-// Iniciar escritura y sonido de fax al cargar
 window.onload = () => {
     playFaxSound();
-    setTimeout(type, 1500); // Dar tiempo al sonido de fax
+    setTimeout(type, 1000);
 };
 
-/* 🎮 LÓGICA DEL JUEGO DE MEMORIA */
-let cards = [], selected = [], matchedCount = 0, timeLeft = 360; // 6 minutos en segundos
+/* 🎮 LÓGICA DEL JUEGO */
+let cards = [], selected = [], matchedCount = 0, timeLeft = 360;
 let lockBoard = false, timerInterval;
 
 function startGame() {
-    audioCtx.resume(); // Necesario para navegadores modernos
+    audioCtx.resume();
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
-    
     setupBoard();
     timerInterval = setInterval(updateTimer, 1000);
 }
 
 function setupBoard() {
-    // Generar 100 cartas (50 parejas) cíclicamente usando las imágenes disponibles
+    // 32 parejas para llenar el tablero de 64 (8x8)
     let deck = [];
-    for(let i=0; i<50; i++) {
-        let img = images[i % images.length];
-        deck.push({ id: i, img: img });
-        deck.push({ id: i, img: img });
+    for(let i=0; i<32; i++) {
+        deck.push({ id: i, sym: symbols[i] });
+        deck.push({ id: i, sym: symbols[i] });
     }
     cards = deck.sort(() => Math.random() - 0.5);
 
     const grid = document.getElementById("grid");
-    cards.forEach((card, index) => {
+    cards.forEach((card) => {
         const div = document.createElement("div");
         div.className = "card";
         div.dataset.id = card.id;
-        div.innerHTML = `<img src="${card.img}">`;
+        div.innerHTML = `<div class="content">${card.sym}</div>`;
         div.onclick = () => flipCard(div);
         grid.appendChild(div);
     });
@@ -298,8 +266,7 @@ function setupBoard() {
 function flipCard(el) {
     if (lockBoard || el.classList.contains('flipped') || el.classList.contains('matched')) return;
 
-    // Bip medio al voltear
-    playSound(440, 'sine', 0.1, 0.03, 'exponential');
+    playSound(500, 'sine', 0.1, 0.02);
     el.classList.add('flipped');
     selected.push(el);
 
@@ -312,24 +279,22 @@ function flipCard(el) {
 function checkMatch() {
     const [c1, c2] = selected;
     if (c1.dataset.id === c2.dataset.id) {
-        // Sonido agudo de acierto
-        playSound(880, 'sine', 0.2, 0.04, 'exponential');
+        playSound(900, 'sine', 0.2, 0.03);
         c1.classList.add('matched');
         c2.classList.add('matched');
         matchedCount++;
         document.getElementById("matches").innerText = matchedCount;
         selected = [];
         lockBoard = false;
-        if (matchedCount === 50) win();
+        if (matchedCount === 32) win();
     } else {
-        // Sonido grave de fallo
-        playSound(150, 'sawtooth', 0.2, 0.03, 'exponential');
+        playSound(100, 'sawtooth', 0.2, 0.02);
         setTimeout(() => {
             c1.classList.remove('flipped');
             c2.classList.remove('flipped');
             selected = [];
             lockBoard = false;
-        }, 400);
+        }, 500);
     }
 }
 
@@ -338,7 +303,6 @@ function updateTimer() {
     let m = Math.floor(timeLeft / 60);
     let s = timeLeft % 60;
     document.getElementById("timer").innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-    
     if (timeLeft <= 0) {
         clearInterval(timerInterval);
         alert("SISTEMA BLOQUEADO. REINICIANDO PROTOCOLO...");
@@ -350,10 +314,8 @@ function win() {
     clearInterval(timerInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("final").style.display = "flex";
-    // Sonido final triunfal rápido
     playFaxSound();
     
-    // Cuenta regresiva final simulada (puedes ajustar la fecha)
     const target = new Date("2026-12-26T00:00:00").getTime();
     setInterval(() => {
         const diff = target - Date.now();
