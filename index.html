@@ -1,3 +1,8 @@
+¡Entendido! He vuelto al sonido de **router/fax ruidoso y digital** (el que hacía varios pitidos aleatorios al principio), he restaurado el tablero de **8x8** (64 cartas) con formato rectangular para que no se corte, y he ajustado el tiempo a **5 minutos**.
+
+Aquí tienes el código limpio y listo para copiar:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,12 +25,11 @@
             overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Todo hacia arriba */
+            align-items: flex-start;
             height: 100vh;
             text-transform: uppercase;
         }
 
-        /* Efecto CRT suave */
         body::before {
             content: "";
             position: absolute;
@@ -41,7 +45,7 @@
             flex-direction: column;
             align-items: center;
             width: 95%;
-            padding-top: 10px; /* Espacio mínimo arriba */
+            padding-top: 10px;
         }
 
         #introText {
@@ -50,6 +54,7 @@
             text-align: center;
             max-width: 700px;
             text-shadow: 0 0 8px var(--neon);
+            line-height: 1.5;
         }
 
         .btn {
@@ -65,13 +70,12 @@
             z-index: 110;
         }
 
-        /* Grid 6x6 optimizado para altura baja */
         #grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
             width: 100%;
-            max-width: 600px; /* Más estrecho para asegurar altura */
+            max-width: 850px;
             max-height: 70vh;
         }
 
@@ -82,8 +86,9 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            font-size: 1.8rem;
-            aspect-ratio: 1.4 / 1; /* Muy rectangular para pantallas de portátil */
+            font-size: 1.6rem;
+            aspect-ratio: 1.4 / 1;
+            transition: 0.2s;
         }
 
         .card .inner { display: none; }
@@ -95,20 +100,22 @@
             font-weight: bold;
             margin-bottom: 5px;
             border-bottom: 2px solid var(--neon);
+            padding: 0 15px;
         }
 
-        #final h1 { font-size: 1.8rem; margin: 10px 0; color: #fff; }
-        #final p { font-size: 0.9rem; text-align: center; }
-        #countdown { font-size: 3rem; margin: 10px 0; font-weight: bold; }
+        #final h1 { font-size: 1.6rem; margin: 10px 0; color: #fff; text-align: center; }
+        #final p { font-size: 0.9rem; text-align: center; max-width: 600px; line-height: 1.4; }
+        #countdown { font-size: 3.5rem; margin: 5px 0; font-weight: bold; }
         
         .url-box {
             margin-top: 15px;
-            padding: 10px;
+            padding: 12px;
             border: 1px dashed var(--neon);
-            color: yellow;
+            color: #fbff00;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             word-break: break-all;
+            background: rgba(255, 255, 0, 0.05);
         }
     </style>
 </head>
@@ -120,20 +127,19 @@
     </div>
 
     <div id="game" style="display: none;">
-        <div id="timer">03:00</div>
+        <div id="timer">05:00</div>
         <div id="grid"></div>
     </div>
 
     <div id="final" style="display: none;">
-        <h1>LA CUENTA ATRAS HA COMENZADO</h1>
+        <h1>LA CUENTA ATRÁS HA COMENZADO</h1>
         <div id="countdown"></div>
-        <p>CUANDO ADIVINEIS CUANDO CUMPLE EL TEMPORIZADOR DARLE AL SIGUIENTE LINK:</p>
+        <p>CUANDO ADIVINÉIS CUÁNDO CUMPLE EL TEMPORIZADOR DADLE AL SIGUIENTE LINK:</p>
         <a href="https://TU-LINK-AQUÍ.com" class="url-box" target="_blank">https://TU-LINK-AQUÍ.com</a>
     </div>
 
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let tensionInterval;
 
 function playBip(freq, duration, volume) {
     const osc = audioCtx.createOscillator();
@@ -148,10 +154,24 @@ function playBip(freq, duration, volume) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-function startTensionBips() {
-    tensionInterval = setInterval(() => {
-        playBip(200, 0.1, 0.05); // Bip rítmico de fondo
-    }, 1000);
+// Sonido de Router/Fax (ruidoso y digital como el de antes)
+function playRouterSound() {
+    let now = audioCtx.currentTime;
+    for(let i=0; i<30; i++) {
+        let time = now + (i * 0.1);
+        let f = 600 + Math.random() * 1400;
+        let type = i % 2 === 0 ? 'sawtooth' : 'square';
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(f, time);
+        g.gain.setValueAtTime(0.02, time);
+        g.gain.linearRampToValueAtTime(0, time + 0.08);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.08);
+    }
 }
 
 const lines = [
@@ -162,7 +182,7 @@ const lines = [
     "",
     "SOLICITUD AUTORIZADA",
     "",
-    "TENEIS 3 MINUTOS PARA COMPLETAR",
+    "TENEIS 5 MINUTOS PARA COMPLETAR",
     "EL JUEGO DE LAS PAREJAS SIGUIENTES",
     "PARA PASAR A LA SIGUIENTE FASE"
 ];
@@ -175,14 +195,14 @@ function typeLine() {
         let line = lines[lineIdx];
         if (charIdx < line.length) {
             introDiv.innerHTML += line[charIdx];
-            playBip(400 + (Math.random() * 200), 0.05, 0.05);
+            playBip(450 + (Math.random() * 150), 0.05, 0.04);
             charIdx++;
-            setTimeout(typeLine, 40);
+            setTimeout(typeLine, 45);
         } else {
             introDiv.innerHTML += "<br>";
             lineIdx++;
             charIdx = 0;
-            setTimeout(typeLine, ["YAIZA", "YAEL", "JOEL"].includes(line) ? 800 : 300);
+            setTimeout(typeLine, ["YAIZA", "YAEL", "JOEL"].includes(line) ? 900 : 350);
         }
     } else {
         document.getElementById("startBtn").style.display = "block";
@@ -193,22 +213,21 @@ window.onclick = () => {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
         introDiv.innerHTML = "";
-        playBip(100, 1.5, 0.1); // Sonido de entrada
+        playRouterSound();
         typeLine();
         window.onclick = null;
     }
 };
 
-const icons = ["🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢","🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️","🎆","🍾"];
-let selected = [], matchedCount = 0, timeLeft = 180, timerInterval;
+const icons = ["🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢","🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️","🎆","🍾","🥂","🎉","🎈","🕛","🍇","💃","🎷","🎸","🎵","🌅","🦜","🐚","🦀","🐠"];
+let selected = [], matchedCount = 0, timeLeft = 300, timerInterval;
 
 function startGame() {
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
-    startTensionBips();
 
     let deck = [];
-    for(let i=0; i<18; i++) {
+    for(let i=0; i<32; i++) {
         deck.push({ id: i, icon: icons[i] });
         deck.push({ id: i, icon: icons[i] });
     }
@@ -222,7 +241,7 @@ function startGame() {
         card.innerHTML = `<span class="inner">${item.icon}</span>`;
         card.onclick = () => {
             if(selected.length < 2 && !card.classList.contains('flipped')) {
-                playBip(600, 0.1, 0.2);
+                playBip(700, 0.1, 0.25);
                 card.classList.add('flipped');
                 selected.push(card);
                 if(selected.length === 2) setTimeout(checkMatch, 500);
@@ -242,12 +261,12 @@ function startGame() {
 function checkMatch() {
     const [a, b] = selected;
     if (a.dataset.id === b.dataset.id) {
-        playBip(1000, 0.2, 0.3);
+        playBip(1100, 0.25, 0.3);
         a.classList.add('matched'); b.classList.add('matched');
         matchedCount++;
-        if(matchedCount === 18) win();
+        if(matchedCount === 32) win();
     } else {
-        playBip(150, 0.2, 0.2);
+        playBip(200, 0.2, 0.25);
         a.classList.remove('flipped'); b.classList.remove('flipped');
     }
     selected = [];
@@ -255,13 +274,9 @@ function checkMatch() {
 
 function win() {
     clearInterval(timerInterval);
-    clearInterval(tensionInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("final").style.display = "flex";
-    
-    // Sonido de victoria
-    playBip(800, 0.5, 0.2);
-    setTimeout(() => playBip(1200, 0.5, 0.2), 200);
+    playRouterSound();
 
     const target = new Date("2026-12-26T00:00:00").getTime();
     setInterval(() => {
@@ -269,7 +284,7 @@ function win() {
         const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
         document.getElementById("countdown").innerText = `${d}d ${h}h ${m}m ${s}s`;
-        playBip(1000, 0.05, 0.02); // Bip de reloj final
+        playBip(1200, 0.06, 0.05);
     }, 1000);
 }
 </script>
