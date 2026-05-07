@@ -3,157 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA DE VERIFICACIÓN</title>
+    <title>SISTEMA DE VERIFICACIÓN DE PAREJAS</title>
     <style>
         :root {
-            --neon: #39ff14;
-            --dark: #050505;
+            --neon-green: #39ff14;
+            --dark-bg: #0a0a0a;
+            --grid-size: 10; /* 10x10 = 100 cartas */
         }
 
         body {
-            background-color: var(--dark);
-            color: var(--neon);
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
             text-transform: uppercase;
         }
 
-        /* Efecto CRT */
-        body::after {
+        /* Efecto scanlines CRT */
+        body::before {
             content: " ";
+            display: block;
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 10;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
         }
 
         #intro, #game, #final {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 95%;
-            max-width: 900px;
+            width: 90%;
+            max-width: 800px;
         }
 
         #introText {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            min-height: 250px;
-            white-space: pre-wrap;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            min-height: 200px;
+            text-shadow: 0 0 5px var(--neon-green);
         }
 
         .btn {
             background: transparent;
-            color: var(--neon);
-            border: 2px solid var(--neon);
-            padding: 15px 40px;
+            color: var(--neon-green);
+            border: 2px solid var(--neon-green);
+            padding: 15px 30px;
             font-family: inherit;
             cursor: pointer;
-            font-size: 1.2rem;
-            transition: 0.3s;
             margin-top: 20px;
+            transition: all 0.3s;
+            display: none;
+            z-index: 20; /* Asegurar que el botón esté sobre el efecto CRT */
         }
 
         .btn:hover {
-            background: var(--neon);
+            background: var(--neon-green);
             color: black;
-            box-shadow: 0 0 20px var(--neon);
+            box-shadow: 0 0 20px var(--neon-green);
         }
 
-        /* Estilo del Juego */
-        #timerContainer {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px var(--neon);
+        /* Grid de Juego */
+        #gridContainer {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
         }
 
         #grid {
             display: grid;
-            /* 10 columnas para las 100 cartas */
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(var(--grid-size), 1fr);
             gap: 5px;
             width: 100%;
+            max-width: 650px; /* Limitar el ancho máximo para que no se deforme */
         }
 
         .card {
-            aspect-ratio: 1 / 1;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            cursor: pointer;
+            aspect-ratio: 1 / 1; /* Mantener formato cuadrado */
+            border: 1px solid var(--neon-green);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.8rem;
+            cursor: pointer;
+            background: #111;
             position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
         }
 
-        .card.flipped {
-            background: white;
-            border-color: var(--neon);
+        .card:hover {
+            transform: scale(1.05);
+            background: #222;
         }
 
         .card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: none;
+            visibility: hidden; /* Ocultar imagen inicialmente */
         }
 
         .card.flipped img {
-            display: block;
+            visibility: visible; /* Mostrar imagen al voltear */
         }
 
         .card.matched {
-            visibility: hidden; /* Las cartas desaparecen al acertar */
+            border: none;
+            background: transparent;
+            cursor: default;
+        }
+        
+        .card.matched img {
+            visibility: hidden; /* Ocultar imagen de nuevo al acertar */
         }
 
-        #countdown { font-size: 3rem; margin-top: 20px; }
+        #gameHeader {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        #countdown {
+            font-size: 3rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div id="intro">
         <div id="introText"></div>
-        <button id="startBtn" class="btn" style="display:none" onclick="startGame()">INICIAR SISTEMA</button>
+        <button id="startBtn" class="btn" onclick="startGame()">INICIAR PROTOCOLO</button>
     </div>
 
-    <div id="game" style="display:none">
-        <div id="timerContainer">TIEMPO RESTANTE: <span id="timer">06:00</span></div>
-        <div id="grid"></div>
+    <div id="game" style="display: none;">
+        <div id="gameHeader">
+            <span>PAREJAS: <span id="matches">0</span>/50</span>
+            <span id="timer">06:00</span>
+        </div>
+        <div id="gridContainer">
+            <div id="grid"></div>
+        </div>
     </div>
 
-    <div id="final" style="display:none">
-        <h1>ACCESO CONCEDIDO</h1>
-        <p>SIGUIENTE FASE EN:</p>
+    <div id="final" style="display: none;">
+        <h2>ACCESO TOTAL CONCEDIDO</h2>
+        <p>REINICIO DE SISTEMA EN:</p>
         <div id="countdown"></div>
     </div>
 
 <script>
-/* 🎧 AUDIO */
-const audio = new (window.AudioContext || window.webkitAudioContext)();
-function bip(f, d) {
-    const o = audio.createOscillator();
-    const g = audio.createGain();
-    o.type = "square";
-    o.frequency.value = f;
-    g.gain.value = 0.02;
-    o.connect(g);
-    g.connect(audio.destination);
-    o.start();
-    o.stop(audio.currentTime + d);
+/* 🔊 MOTOR DE AUDIO Y SONIDOS */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(freq, type, duration, vol, rampType = 'linear') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    if (rampType === 'exponential') {
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    } else {
+        gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    }
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
 }
 
-/* 🖼️ TUS FOTOS (IMGUR DIRECT LINKS) */
-// He extraído las fotos de tu álbum de Imgur
-const rawImages = [
+// Sonido complejo de fax/router antiguo
+function playFaxSound() {
+    let startTime = audioCtx.currentTime;
+    for(let i=0; i<15; i++) {
+        let f1 = 800 + Math.random() * 1000;
+        let f2 = 1200 + Math.random() * 800;
+        playSound(f1, 'sine', 0.1, 0.02);
+        playSound(f2, 'sawtooth', 0.1, 0.01);
+        startTime += 0.05 + Math.random() * 0.1;
+    }
+}
+
+/* 🖼️ TUS IMÁGENES AQUÍ (LINKS DIRECTOS .jpg) */
+// Asegúrate de que estos enlaces terminan en .jpg
+const images = [
     "https://i.imgur.com/uR1k3Rk.jpg",
     "https://i.imgur.com/jIisXNn.jpg",
     "https://i.imgur.com/7Yf9h9p.jpg",
@@ -164,63 +214,71 @@ const rawImages = [
     "https://i.imgur.com/mZ2Z3Z3.jpg"
 ];
 
-/* ✍️ TEXTO DE INTRODUCCIÓN */
+/* ✍️ LÓGICA DE ESCRITURA CINEMATOGRÁFICA */
 const lines = [
-    "ESTABLECIENDO CONEXIÓN ENCRIPTADA...",
-    "BUSCANDO FILTRACIONES EN EL SECTOR 7...",
-    "USUARIOS AUTORIZADOS DETECTADOS:",
+    "CONECTANDO CON EL SERVIDOR CENTRAL... [OK]",
+    "ESTABLECIENDO PROTOCOLO SEGURO...",
+    "VERIFICANDO CREDENCIALES BIOMÉTRICAS...",
     "",
-    "YAIZA",
-    "YAEL",
-    "JOEL",
+    "USUARIOS DETECTADOS EN LA ZONA:",
+    "> YAIZA",
+    "> YAEL",
+    "> JOEL",
     "",
-    "SOLICITUD DE ACCESO NIVEL 4: APROBADA",
-    "ADVERTENCIA: TENÉIS 6 MINUTOS PARA",
-    "RESOLVER EL PROTOCOLO DE PAREJAS.",
-    "SI FALLÁIS, EL SISTEMA SE BLOQUEARÁ."
+    "SOLICITUD DE ACCESO Nivel IV: AUTORIZADA",
+    "",
+    "ATENCIÓN: EL SISTEMA SE BLOQUEARÁ EN 6 MINUTOS.",
+    "RESOLVED EL ACERTIJO DE PAREJAS PARA CONTINUAR."
 ];
 
-let currentLine = 0;
-let currentChar = 0;
+let lineIdx = 0, charIdx = 0;
+const introDiv = document.getElementById("introText");
 
-function typeWriter() {
-    const div = document.getElementById("introText");
-    if (currentLine < lines.length) {
-        if (currentChar < lines[currentLine].length) {
-            div.innerHTML += lines[currentLine][currentChar];
-            bip(200 + Math.random() * 300, 0.03);
-            currentChar++;
-            setTimeout(typeWriter, 40);
+function type() {
+    if (lineIdx < lines.length) {
+        let currentLine = lines[lineIdx];
+        if (charIdx < currentLine.length) {
+            introDiv.innerHTML += currentLine[charIdx];
+            // Sonido de "bip" corto por carácter
+            playSound(200 + Math.random() * 100, 'square', 0.05, 0.01, 'exponential');
+            charIdx++;
+            setTimeout(type, 40);
         } else {
-            div.innerHTML += "<br>";
-            currentLine++;
-            currentChar = 0;
-            setTimeout(typeWriter, 600);
+            introDiv.innerHTML += "<br>";
+            lineIdx++;
+            charIdx = 0;
+            let delay = currentLine.includes(">") ? 1000 : 400;
+            setTimeout(type, delay);
         }
     } else {
         document.getElementById("startBtn").style.display = "block";
     }
 }
 
-window.onload = typeWriter;
+// Iniciar escritura y sonido de fax al cargar
+window.onload = () => {
+    playFaxSound();
+    setTimeout(type, 1500); // Dar tiempo al sonido de fax
+};
 
-/* 🎮 LÓGICA DEL JUEGO */
-let cards = [];
-let selected = [];
-let matchedPairs = 0;
-let lockBoard = false;
-let timeLeft = 360; // 6 minutos
-let timerInterval;
+/* 🎮 LÓGICA DEL JUEGO DE MEMORIA */
+let cards = [], selected = [], matchedCount = 0, timeLeft = 360; // 6 minutos en segundos
+let lockBoard = false, timerInterval;
 
 function startGame() {
-    audio.resume();
+    audioCtx.resume(); // Necesario para navegadores modernos
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
     
-    // Generar 100 cartas (50 parejas) usando tus fotos de forma cíclica
+    setupBoard();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function setupBoard() {
+    // Generar 100 cartas (50 parejas) cíclicamente usando las imágenes disponibles
     let deck = [];
     for(let i=0; i<50; i++) {
-        let img = rawImages[i % rawImages.length];
+        let img = images[i % images.length];
         deck.push({ id: i, img: img });
         deck.push({ id: i, img: img });
     }
@@ -230,54 +288,60 @@ function startGame() {
     cards.forEach((card, index) => {
         const div = document.createElement("div");
         div.className = "card";
-        div.dataset.pairId = card.id;
+        div.dataset.id = card.id;
         div.innerHTML = `<img src="${card.img}">`;
-        div.onclick = () => flip(div);
+        div.onclick = () => flipCard(div);
         grid.appendChild(div);
     });
-
-    timerInterval = setInterval(updateTimer, 1000);
 }
 
-function flip(card) {
-    if (lockBoard || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+function flipCard(el) {
+    if (lockBoard || el.classList.contains('flipped') || el.classList.contains('matched')) return;
 
-    bip(400, 0.05);
-    card.classList.add('flipped');
-    selected.push(card);
+    // Bip medio al voltear
+    playSound(440, 'sine', 0.1, 0.03, 'exponential');
+    el.classList.add('flipped');
+    selected.push(el);
 
     if (selected.length === 2) {
         lockBoard = true;
-        setTimeout(checkMatch, 500);
+        setTimeout(checkMatch, 600);
     }
 }
 
 function checkMatch() {
-    const [a, b] = selected;
-    if (a.dataset.pairId === b.dataset.pairId) {
-        bip(800, 0.1);
-        a.classList.add('matched');
-        b.classList.add('matched');
-        matchedPairs++;
-        if (matchedPairs === 50) win();
+    const [c1, c2] = selected;
+    if (c1.dataset.id === c2.dataset.id) {
+        // Sonido agudo de acierto
+        playSound(880, 'sine', 0.2, 0.04, 'exponential');
+        c1.classList.add('matched');
+        c2.classList.add('matched');
+        matchedCount++;
+        document.getElementById("matches").innerText = matchedCount;
+        selected = [];
+        lockBoard = false;
+        if (matchedCount === 50) win();
     } else {
-        bip(100, 0.2);
-        a.classList.remove('flipped');
-        b.classList.remove('flipped');
+        // Sonido grave de fallo
+        playSound(150, 'sawtooth', 0.2, 0.03, 'exponential');
+        setTimeout(() => {
+            c1.classList.remove('flipped');
+            c2.classList.remove('flipped');
+            selected = [];
+            lockBoard = false;
+        }, 400);
     }
-    selected = [];
-    lockBoard = false;
 }
 
 function updateTimer() {
     timeLeft--;
     let m = Math.floor(timeLeft / 60);
     let s = timeLeft % 60;
-    document.getElementById("timer").innerText = `${m}:${s < 10 ? '0' + s : s}`;
-
+    document.getElementById("timer").innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+    
     if (timeLeft <= 0) {
         clearInterval(timerInterval);
-        alert("SISTEMA BLOQUEADO: TIEMPO AGOTADO");
+        alert("SISTEMA BLOQUEADO. REINICIANDO PROTOCOLO...");
         location.reload();
     }
 }
@@ -286,7 +350,10 @@ function win() {
     clearInterval(timerInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("final").style.display = "flex";
-
+    // Sonido final triunfal rápido
+    playFaxSound();
+    
+    // Cuenta regresiva final simulada (puedes ajustar la fecha)
     const target = new Date("2026-12-26T00:00:00").getTime();
     setInterval(() => {
         const diff = target - Date.now();
