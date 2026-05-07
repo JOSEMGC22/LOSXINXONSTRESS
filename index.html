@@ -1,13 +1,20 @@
+Aquí tienes la versión final ajustada. He realizado los siguientes cambios técnicos para asegurar que **quepa absolutamente todo en la pantalla de tu portátil**:
+
+1. **Compactación Total:** He reducido el tamaño del encabezado y los márgenes. Ahora el juego está diseñado para ocupar el mínimo espacio vertical posible.
+2. **Tiempo a 3 Minutos:** El cronómetro ahora empieza en **03:00**.
+3. **Textos Finales Personalizados:** He actualizado los mensajes de victoria y he añadido el espacio para tu futura URL.
+4. **Sonido de Cuenta Atrás:** He añadido un "latido" electrónico constante (bips rítmicos) que suena durante el juego para añadir tensión.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA DE VERIFICACIÓN PRO</title>
+    <title>SISTEMA DE VERIFICACIÓN FINAL</title>
     <style>
         :root {
             --neon: #39ff14;
-            --neon-glow: rgba(57, 255, 20, 0.3);
             --dark: #050505;
             --glass: rgba(255, 255, 255, 0.05);
         }
@@ -15,25 +22,24 @@
         body {
             background-color: var(--dark);
             color: var(--neon);
-            font-family: 'Segoe UI', 'Courier New', monospace;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 0;
             overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Subido para que empiece más arriba */
+            align-items: flex-start; /* Todo hacia arriba */
             height: 100vh;
             text-transform: uppercase;
         }
 
+        /* Efecto CRT suave */
         body::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
-                radial-gradient(circle, transparent 20%, black 150%);
-            background-size: 100% 4px, 100% 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
             z-index: 100;
             pointer-events: none;
         }
@@ -43,102 +49,101 @@
             flex-direction: column;
             align-items: center;
             width: 95%;
-            padding-top: 2vh; /* Margen superior pequeño */
+            padding-top: 10px; /* Espacio mínimo arriba */
         }
 
         #introText {
-            margin-top: 10vh;
-            font-size: clamp(1rem, 2vw, 1.4rem);
-            line-height: 1.6;
-            text-shadow: 0 0 10px var(--neon);
+            margin-top: 5vh;
+            font-size: 1.1rem;
             text-align: center;
-            max-width: 800px;
+            max-width: 700px;
+            text-shadow: 0 0 8px var(--neon);
         }
 
         .btn {
             background: var(--neon);
             color: black;
             border: none;
-            padding: 15px 40px;
-            font-family: inherit;
+            padding: 12px 30px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1.2rem;
-            border-radius: 4px;
-            box-shadow: 0 0 20px var(--neon-glow);
-            transition: 0.3s;
+            font-size: 1rem;
+            margin-top: 20px;
             display: none;
             z-index: 110;
         }
 
-        /* Grid 6x6 para garantizar que entre en pantalla */
+        /* Grid 6x6 optimizado para altura baja */
         #grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            gap: 6px;
             width: 100%;
-            max-width: 800px;
-            max-height: 75vh; 
-            padding: 10px;
+            max-width: 600px; /* Más estrecho para asegurar altura */
+            max-height: 70vh;
         }
 
         .card {
             background: var(--glass);
-            border: 1px solid var(--neon-glow);
-            border-radius: 4px;
+            border: 1px solid rgba(57, 255, 20, 0.2);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            transition: all 0.2s ease-out;
-            aspect-ratio: 1.3 / 1; /* Más rectangular para portátiles */
-        }
-
-        .card:hover {
-            background: rgba(57, 255, 20, 0.1);
-            border-color: var(--neon);
+            font-size: 1.8rem;
+            aspect-ratio: 1.4 / 1; /* Muy rectangular para pantallas de portátil */
         }
 
         .card .inner { display: none; }
-        .card.flipped { background: rgba(255, 255, 255, 0.1); border-color: white; }
         .card.flipped .inner { display: block; }
         .card.matched { opacity: 0; pointer-events: none; }
 
         #timer {
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
-            font-weight: 800;
-            margin-bottom: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 20px;
-            border-bottom: 3px solid var(--neon);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            border-bottom: 2px solid var(--neon);
         }
 
-        #countdown { font-size: 4rem; }
+        #final h1 { font-size: 1.8rem; margin: 10px 0; color: #fff; }
+        #final p { font-size: 0.9rem; text-align: center; }
+        #countdown { font-size: 3rem; margin: 10px 0; font-weight: bold; }
+        
+        .url-box {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px dashed var(--neon);
+            color: yellow;
+            text-decoration: none;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
 
     <div id="intro">
-        <div id="introText">HAGA CLIC PARA ESTABLECER CONEXIÓN...</div>
-        <button id="startBtn" class="btn" onclick="startGame()">ACCEDER AL SISTEMA</button>
+        <div id="introText">HAGA CLIC PARA INICIAR CONEXIÓN...</div>
+        <button id="startBtn" class="btn" onclick="startGame()">ACCEDER</button>
     </div>
 
     <div id="game" style="display: none;">
-        <div id="timer">05:00</div>
+        <div id="timer">03:00</div>
         <div id="grid"></div>
     </div>
 
     <div id="final" style="display: none;">
-        <h1 style="font-size: 3rem;">SISTEMA DESBLOQUEADO</h1>
-        <p>INICIO DE FASE EN:</p>
+        <h1>LA CUENTA ATRAS HA COMENZADO</h1>
         <div id="countdown"></div>
+        <p>CUANDO ADIVINEIS CUANDO CUMPLE EL TEMPORIZADOR DARLE AL SIGUIENTE LINK:</p>
+        <a href="https://TU-LINK-AQUÍ.com" class="url-box" target="_blank">https://TU-LINK-AQUÍ.com</a>
     </div>
 
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let tensionInterval;
 
-function playBip(freq, duration, volume = 0.15) {
+function playBip(freq, duration, volume) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine';
@@ -151,19 +156,10 @@ function playBip(freq, duration, volume = 0.15) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-function playRouterSound() {
-    const duration = 2.0;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + duration);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+function startTensionBips() {
+    tensionInterval = setInterval(() => {
+        playBip(200, 0.1, 0.05); // Bip rítmico de fondo
+    }, 1000);
 }
 
 const lines = [
@@ -174,7 +170,7 @@ const lines = [
     "",
     "SOLICITUD AUTORIZADA",
     "",
-    "TENEIS 5 MINUTOS PARA COMPLETAR",
+    "TENEIS 3 MINUTOS PARA COMPLETAR",
     "EL JUEGO DE LAS PAREJAS SIGUIENTES",
     "PARA PASAR A LA SIGUIENTE FASE"
 ];
@@ -189,14 +185,12 @@ function typeLine() {
             introDiv.innerHTML += line[charIdx];
             playBip(400 + (Math.random() * 200), 0.05, 0.05);
             charIdx++;
-            setTimeout(typeLine, 50);
+            setTimeout(typeLine, 40);
         } else {
             introDiv.innerHTML += "<br>";
             lineIdx++;
             charIdx = 0;
-            let pause = line === "" ? 200 : 600;
-            if(["YAIZA", "YAEL", "JOEL"].includes(line)) pause = 1000;
-            setTimeout(typeLine, pause);
+            setTimeout(typeLine, ["YAIZA", "YAEL", "JOEL"].includes(line) ? 800 : 300);
         }
     } else {
         document.getElementById("startBtn").style.display = "block";
@@ -207,24 +201,20 @@ window.onclick = () => {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
         introDiv.innerHTML = "";
-        playRouterSound();
+        playBip(100, 1.5, 0.1); // Sonido de entrada
         typeLine();
         window.onclick = null;
     }
 };
 
-const icons = [
-    "🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢",
-    "🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️",
-    "🎆","🍾" // 18 iconos para 36 cartas (6x6)
-];
-
-let selected = [], matchedCount = 0, timeLeft = 300, timerInterval;
+const icons = ["🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢","🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️","🎆","🍾"];
+let selected = [], matchedCount = 0, timeLeft = 180, timerInterval;
 
 function startGame() {
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
-    
+    startTensionBips();
+
     let deck = [];
     for(let i=0; i<18; i++) {
         deck.push({ id: i, icon: icons[i] });
@@ -240,7 +230,7 @@ function startGame() {
         card.innerHTML = `<span class="inner">${item.icon}</span>`;
         card.onclick = () => {
             if(selected.length < 2 && !card.classList.contains('flipped')) {
-                playBip(600, 0.15, 0.25);
+                playBip(600, 0.1, 0.2);
                 card.classList.add('flipped');
                 selected.push(card);
                 if(selected.length === 2) setTimeout(checkMatch, 500);
@@ -260,12 +250,12 @@ function startGame() {
 function checkMatch() {
     const [a, b] = selected;
     if (a.dataset.id === b.dataset.id) {
-        playBip(1000, 0.3, 0.3);
+        playBip(1000, 0.2, 0.3);
         a.classList.add('matched'); b.classList.add('matched');
         matchedCount++;
         if(matchedCount === 18) win();
     } else {
-        playBip(200, 0.2, 0.2);
+        playBip(150, 0.2, 0.2);
         a.classList.remove('flipped'); b.classList.remove('flipped');
     }
     selected = [];
@@ -273,18 +263,25 @@ function checkMatch() {
 
 function win() {
     clearInterval(timerInterval);
+    clearInterval(tensionInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("final").style.display = "flex";
-    playRouterSound();
     
+    // Sonido de victoria
+    playBip(800, 0.5, 0.2);
+    setTimeout(() => playBip(1200, 0.5, 0.2), 200);
+
     const target = new Date("2026-12-26T00:00:00").getTime();
     setInterval(() => {
         const diff = target - Date.now();
         const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
         document.getElementById("countdown").innerText = `${d}d ${h}h ${m}m ${s}s`;
+        playBip(1000, 0.05, 0.02); // Bip de reloj final
     }, 1000);
 }
 </script>
 </body>
 </html>
+
+```
