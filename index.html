@@ -21,12 +21,11 @@
             overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Subido para que empiece más arriba */
             height: 100vh;
             text-transform: uppercase;
         }
 
-        /* Scanlines y Vignette Moderno */
         body::before {
             content: "";
             position: absolute;
@@ -44,11 +43,11 @@
             flex-direction: column;
             align-items: center;
             width: 95%;
-            height: 90vh; /* Ajuste para que no se corte en portátiles */
-            justify-content: center;
+            padding-top: 2vh; /* Margen superior pequeño */
         }
 
         #introText {
+            margin-top: 10vh;
             font-size: clamp(1rem, 2vw, 1.4rem);
             line-height: 1.6;
             text-shadow: 0 0 10px var(--neon);
@@ -72,19 +71,14 @@
             z-index: 110;
         }
 
-        .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 40px var(--neon);
-        }
-
-        /* Grid Moderno y Rectangular */
+        /* Grid 6x6 para garantizar que entre en pantalla */
         #grid {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
             width: 100%;
-            max-width: 900px;
-            max-height: 70vh; /* Limita la altura para evitar scroll */
+            max-width: 800px;
+            max-height: 75vh; 
             padding: 10px;
         }
 
@@ -96,10 +90,9 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-size: clamp(1.8rem, 4vw, 3rem);
             transition: all 0.2s ease-out;
-            aspect-ratio: 1.2 / 1; /* Formato algo más rectangular */
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            aspect-ratio: 1.3 / 1; /* Más rectangular para portátiles */
         }
 
         .card:hover {
@@ -107,32 +100,17 @@
             border-color: var(--neon);
         }
 
-        .card .inner { 
-            display: none; 
-            filter: drop-shadow(0 0 5px white);
-        }
-        
-        .card.flipped {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: white;
-            transform: translateY(-5px);
-        }
-        
+        .card .inner { display: none; }
+        .card.flipped { background: rgba(255, 255, 255, 0.1); border-color: white; }
         .card.flipped .inner { display: block; }
-
-        .card.matched {
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.5s;
-        }
+        .card.matched { opacity: 0; pointer-events: none; }
 
         #timer {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
             font-weight: 800;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 5px 20px;
             border-bottom: 3px solid var(--neon);
         }
 
@@ -147,7 +125,7 @@
     </div>
 
     <div id="game" style="display: none;">
-        <div id="timer">06:00</div>
+        <div id="timer">05:00</div>
         <div id="grid"></div>
     </div>
 
@@ -160,20 +138,15 @@
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-/* 🔊 SONIDOS MEJORADOS (MÁS ALTOS Y BIP) */
 function playBip(freq, duration, volume = 0.15) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    
     gain.gain.setValueAtTime(volume, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
 }
@@ -182,21 +155,17 @@ function playRouterSound() {
     const duration = 2.0;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(100, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + duration);
-    
     gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
     gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-    
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
 }
 
-/* 📝 TEXTO ORIGINAL */
 const lines = [
     "DETECTANDO USUARIOS CONECTADOS",
     "PARA VERIFICAR AUTORIZACION",
@@ -205,7 +174,7 @@ const lines = [
     "",
     "SOLICITUD AUTORIZADA",
     "",
-    "TENEIS 6 MINUTOS PARA COMPLETAR",
+    "TENEIS 5 MINUTOS PARA COMPLETAR",
     "EL JUEGO DE LAS PAREJAS SIGUIENTES",
     "PARA PASAR A LA SIGUIENTE FASE"
 ];
@@ -244,22 +213,20 @@ window.onclick = () => {
     }
 };
 
-/* 🎮 JUEGO 8x8 */
 const icons = [
     "🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢",
     "🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️",
-    "🎆","🍾","🥂","🎉","🎈","🕛","🍇","💃",
-    "🎷","🎸","🎵","🌅","🦜","🐚","🦀","🐠"
+    "🎆","🍾" // 18 iconos para 36 cartas (6x6)
 ];
 
-let selected = [], matchedCount = 0, timeLeft = 360, timerInterval;
+let selected = [], matchedCount = 0, timeLeft = 300, timerInterval;
 
 function startGame() {
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
     
     let deck = [];
-    for(let i=0; i<32; i++) {
+    for(let i=0; i<18; i++) {
         deck.push({ id: i, icon: icons[i] });
         deck.push({ id: i, icon: icons[i] });
     }
@@ -273,7 +240,7 @@ function startGame() {
         card.innerHTML = `<span class="inner">${item.icon}</span>`;
         card.onclick = () => {
             if(selected.length < 2 && !card.classList.contains('flipped')) {
-                playBip(600, 0.15, 0.2); // Bip más alto al tocar
+                playBip(600, 0.15, 0.25);
                 card.classList.add('flipped');
                 selected.push(card);
                 if(selected.length === 2) setTimeout(checkMatch, 500);
@@ -293,12 +260,12 @@ function startGame() {
 function checkMatch() {
     const [a, b] = selected;
     if (a.dataset.id === b.dataset.id) {
-        playBip(1000, 0.3, 0.25); // Bip de éxito
+        playBip(1000, 0.3, 0.3);
         a.classList.add('matched'); b.classList.add('matched');
         matchedCount++;
-        if(matchedCount === 32) win();
+        if(matchedCount === 18) win();
     } else {
-        playBip(200, 0.2, 0.2); // Bip de fallo
+        playBip(200, 0.2, 0.2);
         a.classList.remove('flipped'); b.classList.remove('flipped');
     }
     selected = [];
