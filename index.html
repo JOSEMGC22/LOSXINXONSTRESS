@@ -3,69 +3,72 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Acceso restringido</title>
+<title>ACCESS SYSTEM</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: monospace;
   background: black;
   color: #00ff88;
   text-align: center;
 }
 
-/* --- INTRO --- */
+/* HEADER */
 #intro {
-  padding-top: 80px;
+  padding: 20px;
 }
 
-#startBtn {
-  padding: 15px 30px;
-  font-size: 18px;
+button {
+  padding: 12px 20px;
   background: #00ff88;
   border: none;
   cursor: pointer;
+  font-weight: bold;
 }
 
-/* --- MEMORY GAME --- */
-#game {
+/* TIMER */
+#timerTop {
+  font-size: 20px;
+  margin: 10px;
+}
+
+/* GRID 16x16 */
+#grid {
+  display: grid;
+  grid-template-columns: repeat(16, 28px);
+  gap: 2px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.card {
+  width: 28px;
+  height: 28px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid #003322;
+}
+
+/* SECRET */
+#secret {
   display: none;
   margin-top: 30px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 70px);
-  gap: 10px;
-  justify-content: center;
-}
-
-.card {
-  width: 70px;
-  height: 70px;
-  background: #111;
-  border: 1px solid #00ff88;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#bigTimer {
   font-size: 30px;
-  cursor: pointer;
-}
-
-/* --- UNLOCK --- */
-#secret {
-  display: none;
-  margin-top: 40px;
-}
-
-#timer {
-  font-size: 40px;
   margin: 20px;
 }
 
 a {
   color: #00ff88;
-  font-size: 20px;
+  font-size: 18px;
 }
 </style>
 </head>
@@ -73,104 +76,148 @@ a {
 <body>
 
 <div id="intro">
-  <h1>ACCESO RESTRINGIDO</h1>
-  <p>Desbloquea el sistema para continuar</p>
-  <button id="startBtn">INICIAR ACCESO</button>
+  <h2>SISTEMA BLOQUEADO</h2>
+  <p>Encuentra todas las parejas para acceder</p>
+  <button onclick="startGame()">INICIAR</button>
+  <div id="timerTop"></div>
 </div>
 
-<div id="game">
-  <h2>Encuentra todos los pares</h2>
-  <div class="grid" id="grid"></div>
-</div>
+<div id="grid"></div>
 
 <div id="secret">
-  <h2>SISTEMA DESBLOQUEADO</h2>
+  <h2>🔓 ACCESO CONCEDIDO</h2>
   <p>CUANDO CALCULEIS CUANDO ACABA LA CUENTA ATRAS, DARLE AL LINK DE ABAJO</p>
-  <div id="timer"></div>
-  <a href="https://TU-LINK-AQUI.COM" target="_blank">IR AL VIDEO</a>
+  <div id="bigTimer"></div>
+
+  <a href="https://TU-LINK-AQUI.COM" target="_blank">
+    IR AL VIDEO
+  </a>
 </div>
 
 <script>
-const startBtn = document.getElementById("startBtn");
-const game = document.getElementById("game");
-const grid = document.getElementById("grid");
-
-let emojis = ["💀","💀","🔥","🔥","⚡","⚡","🧠","🧠","👁","👁","💻","💻"];
+let grid = document.getElementById("grid");
 let selected = [];
 let matched = 0;
+let time = 360; // 6 minutos
+let interval;
+let gameActive = false;
 
-startBtn.onclick = () => {
-  document.getElementById("intro").style.display = "none";
-  game.style.display = "block";
-  shuffle(emojis);
-  render();
-};
+// emojis temática verano + nochevieja
+const pool = [
+"🏖️","🌴","☀️","🌊","🍹","🕶️","⛱️","🏊",
+"🎆","🍇","🥂","🎉","🌅","🌙","✨","🍾"
+];
 
-function shuffle(arr){
-  arr.sort(() => Math.random() - 0.5);
+// 128 parejas => 256 cartas
+let cards = [];
+
+function generateCards(){
+  cards = [];
+  for(let i=0;i<128;i++){
+    let emoji = pool[Math.floor(Math.random()*pool.length)];
+    cards.push({id:i*2, emoji});
+    cards.push({id:i*2+1, emoji});
+  }
+  cards.sort(()=>Math.random()-0.5);
 }
 
-function render(){
+function startGame(){
+  document.getElementById("intro").style.display = "none";
   grid.innerHTML = "";
-  emojis.forEach((e,i)=>{
+  selected = [];
+  matched = 0;
+  time = 360;
+  gameActive = true;
+
+  generateCards();
+
+  cards.forEach((c)=>{
     let div = document.createElement("div");
     div.className = "card";
+    div.dataset.id = c.id;
+    div.dataset.emoji = c.emoji;
     div.innerText = "";
-    div.onclick = () => flip(div, e);
+    div.onclick = () => flip(div);
     grid.appendChild(div);
   });
+
+  clearInterval(interval);
+  interval = setInterval(updateTimer,1000);
 }
 
-function flip(card, value){
-  if(card.innerText || selected.length === 2) return;
+function flip(card){
+  if(!gameActive || card.innerText || selected.length === 2) return;
 
-  card.innerText = value;
-  selected.push({card, value});
+  card.innerText = card.dataset.emoji;
+  selected.push(card);
 
   if(selected.length === 2){
-    setTimeout(check, 500);
+    setTimeout(check,400);
   }
 }
 
 function check(){
-  if(selected[0].value === selected[1].value){
+  if(selected[0].dataset.emoji === selected[1].dataset.emoji &&
+     selected[0].dataset.id !== selected[1].dataset.id){
     matched += 2;
-    if(matched === emojis.length){
-      unlock();
-    }
   } else {
-    selected[0].card.innerText = "";
-    selected[1].card.innerText = "";
+    selected[0].innerText = "";
+    selected[1].innerText = "";
   }
+
   selected = [];
+
+  if(matched === 256){
+    win();
+  }
 }
 
-function unlock(){
-  game.style.display = "none";
+function updateTimer(){
+  time--;
+
+  let m = Math.floor(time/60);
+  let s = time%60;
+
+  document.getElementById("timerTop").innerText =
+    `TIEMPO: ${m}:${s < 10 ? "0"+s : s}`;
+
+  if(time <= 0){
+    resetGame();
+  }
+}
+
+function resetGame(){
+  clearInterval(interval);
+  gameActive = false;
+  alert("💥 SISTEMA RESETEADO - INTENTALO DE NUEVO");
+  document.getElementById("intro").style.display = "block";
+  grid.innerHTML = "";
+}
+
+function win(){
+  gameActive = false;
+  clearInterval(interval);
   document.getElementById("secret").style.display = "block";
 
   const target = new Date("2026-12-26T00:00:00").getTime();
 
-  function update(){
-    const now = Date.now();
+  setInterval(()=>{
+    let now = Date.now();
     let d = target - now;
 
     if(d <= 0){
-      document.getElementById("timer").innerText = "FINALIZADO";
+      document.getElementById("bigTimer").innerText = "FINALIZADO";
       return;
     }
 
-    let days = Math.floor(d / 86400000);
+    let days = Math.floor(d/86400000);
     let hours = Math.floor((d%86400000)/3600000);
     let mins = Math.floor((d%3600000)/60000);
     let secs = Math.floor((d%60000)/1000);
 
-    document.getElementById("timer").innerText =
+    document.getElementById("bigTimer").innerText =
       `${days}d ${hours}h ${mins}m ${secs}s`;
-  }
-
-  setInterval(update,1000);
-  update();
+  },1000);
 }
 </script>
 
