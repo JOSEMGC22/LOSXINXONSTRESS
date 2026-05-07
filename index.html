@@ -9,12 +9,12 @@
 body {
   margin: 0;
   font-family: monospace;
-  color: white;
-  overflow-x: hidden;
   background: black;
+  color: white;
+  overflow: hidden;
 }
 
-/* 🎬 INTRO NETFLIX */
+/* 🎬 TRAILER */
 #intro {
   height: 100vh;
   display: flex;
@@ -22,49 +22,23 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: radial-gradient(circle, #0a0a0a, black);
+  background: radial-gradient(circle, #000, #050510);
 }
 
-#logo {
-  font-size: 40px;
-  letter-spacing: 6px;
-  opacity: 0;
-  animation: fadeIn 2s forwards;
-}
-
-@keyframes fadeIn {
-  to {opacity: 1;}
-}
-
-#loading {
-  margin-top: 20px;
-  color: #00ffcc;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  50% {opacity: 0.3;}
-}
-
-/* BUTTON */
-button {
-  margin-top: 25px;
-  padding: 14px 26px;
+#trailerText {
+  white-space: pre-line;
   font-size: 16px;
-  background: #00ffcc;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 0 20px #00ffcc;
-  display: none;
+  max-width: 80%;
+  text-shadow: 0 0 10px black;
 }
 
-/* GAME */
+/* 🎮 GAME PANEL (RECTANGULAR CENTRADO) */
 #game {
   display: none;
   height: 100vh;
-  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
   background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #00c9ff);
   background-size: 400% 400%;
   animation: bg 10s ease infinite;
@@ -76,38 +50,47 @@ button {
   100% {background-position: 0% 50%;}
 }
 
+/* PANEL RECTANGULAR */
+#panel {
+  width: min(700px, 95vw);
+  aspect-ratio: 1 / 0.85;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* TIMER */
 #timerTop {
   text-align: center;
-  font-size: 20px;
-  margin-top: 10px;
+  font-size: 18px;
+  margin-bottom: 10px;
   color: #00ffcc;
 }
 
-/* 🎮 GRID 12x12 */
+/* GRID MÁS COMPACTO */
 #grid {
   display: grid;
-  grid-template-columns: repeat(12, 52px);
-  gap: 5px;
+  grid-template-columns: repeat(12, 44px);
+  gap: 4px;
   justify-content: center;
-  margin: auto;
-  padding: 20px;
 }
 
+/* CARTAS */
 .card {
-  width: 52px;
-  height: 52px;
-  background: rgba(0,0,0,0.5);
+  width: 44px;
+  height: 44px;
+  background: rgba(0,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   border-radius: 10px;
   cursor: pointer;
+  user-select: none;
 }
 
-/* SECRET */
+/* 🔓 FINAL */
 #secret {
   display: none;
   text-align: center;
@@ -115,7 +98,7 @@ button {
 }
 
 #bigTimer {
-  font-size: 32px;
+  font-size: 30px;
   margin: 20px;
 }
 
@@ -128,17 +111,17 @@ a {
 
 <body>
 
-<!-- 🎬 INTRO NETFLIX -->
+<!-- 🎬 TRAILER -->
 <div id="intro">
-  <div id="logo">SYSTEM ACCESS</div>
-  <div id="loading">CARGANDO SISTEMA...</div>
-  <button id="startBtn">INICIAR DESBLOQUEO</button>
+  <div id="trailerText"></div>
 </div>
 
 <!-- 🎮 GAME -->
 <div id="game">
-  <div id="timerTop"></div>
-  <div id="grid"></div>
+  <div id="panel">
+    <div id="timerTop"></div>
+    <div id="grid"></div>
+  </div>
 </div>
 
 <!-- 🔓 FINAL -->
@@ -146,40 +129,59 @@ a {
   <h2>🔓 ACCESS GRANTED</h2>
   <p>CUANDO CALCULEIS CUANDO ACABA LA CUENTA ATRAS, DARLE AL LINK DE ABAJO</p>
   <div id="bigTimer"></div>
-  <a href="https://TU-LINK-AQUI.COM" target="_blank">IR AL VIDEO</a>
+  <a href="https://TU-LINK-AQUI.COM">IR AL VIDEO</a>
 </div>
 
 <script>
 
-/* 🎧 MÚSICA ÉPICA CONTINUA */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+/* 🔊 BIP SYSTEM */
+const audio = new (window.AudioContext || window.webkitAudioContext)();
 
-function playMusic(){
-  let osc = audioCtx.createOscillator();
-  let gain = audioCtx.createGain();
+function bip(f,t){
+  let o = audio.createOscillator();
+  let g = audio.createGain();
 
-  osc.type = "sawtooth";
-  osc.frequency.value = 55;
+  o.frequency.value = f;
+  o.type = "square";
 
-  gain.gain.value = 0.03;
+  g.gain.value = 0.05;
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  o.connect(g);
+  g.connect(audio.destination);
 
-  osc.start();
-
-  // modulación tipo “tensión”
-  setInterval(()=>{
-    osc.frequency.value = 55 + Math.random()*20;
-  },500);
+  o.start();
+  o.stop(audio.currentTime + t);
 }
 
-document.getElementById("startBtn").onclick = startGame;
+/* 🎬 TRAILER */
+const trailer = document.getElementById("trailerText");
 
-/* 🎬 INTRO DELAY */
-setTimeout(()=>{
-  document.getElementById("startBtn").style.display = "block";
-},3000);
+const story =
+`EN UN SISTEMA CERRADO...
+
+TRES USUARIOS HAN SIDO DETECTADOS:
+YAIZA
+YAEL
+JOEL
+
+EL ACCESO HA SIDO BLOQUEADO...
+
+SOLO UNA PRUEBA DECIDIRÁ EL RESULTADO`;
+
+let i = 0;
+
+function typeTrailer(){
+  if(i < story.length){
+    trailer.innerHTML += story[i];
+    if(i % 3 === 0) bip(150 + Math.random()*300, 0.03);
+    i++;
+    setTimeout(typeTrailer, 35);
+  } else {
+    setTimeout(startGame, 1500);
+  }
+}
+
+typeTrailer();
 
 /* 🎮 GAME DATA */
 const emojis = [
@@ -197,8 +199,6 @@ let active = false;
 
 /* START */
 function startGame(){
-  playMusic();
-
   document.getElementById("intro").style.display = "none";
   document.getElementById("game").style.display = "flex";
 
@@ -209,7 +209,7 @@ function startGame(){
   active = true;
 }
 
-/* GENERATE 12x12 = 144 (72 parejas) */
+/* GENERATE 12x12 */
 function generate(){
   cards = [];
   for(let i=0;i<72;i++){
@@ -236,11 +236,12 @@ function render(){
   });
 }
 
-/* FLIP */
+/* FLIP + BIP */
 function flip(card){
   if(!active || card.innerText || selected.length===2) return;
 
   card.innerText = card.dataset.e;
+  bip(400,0.04); // 🔊 BIP AL TOCAR
   selected.push(card);
 
   if(selected.length===2){
@@ -253,8 +254,10 @@ function check(){
   if(selected[0].dataset.e === selected[1].dataset.e &&
      selected[0].dataset.id !== selected[1].dataset.id){
     matched += 2;
+    bip(800,0.1);
   } else {
     selected.forEach(c=>c.innerText="");
+    bip(120,0.1);
   }
 
   selected = [];
