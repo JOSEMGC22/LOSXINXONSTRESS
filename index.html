@@ -1,167 +1,178 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuenta Atrás</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Acceso restringido</title>
 
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: black;
+  color: #00ff88;
+  text-align: center;
+}
 
-    body{
-      height:100vh;
-      overflow:hidden;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      flex-direction:column;
-      font-family:Arial, sans-serif;
-      background:black;
-      color:white;
-      text-align:center;
-      position:relative;
-    }
+/* --- INTRO --- */
+#intro {
+  padding-top: 80px;
+}
 
-    /* Fondo animado */
-    body::before{
-      content:"";
-      position:absolute;
-      width:200%;
-      height:200%;
-      background:
-        radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
-      background-size:50px 50px;
-      animation:mover 40s linear infinite;
-      z-index:-2;
-    }
+#startBtn {
+  padding: 15px 30px;
+  font-size: 18px;
+  background: #00ff88;
+  border: none;
+  cursor: pointer;
+}
 
-    @keyframes mover{
-      from{
-        transform:translate(0,0);
-      }
-      to{
-        transform:translate(-500px,-500px);
-      }
-    }
+/* --- MEMORY GAME --- */
+#game {
+  display: none;
+  margin-top: 30px;
+}
 
-    /* Oscurecido cinematográfico */
-    .overlay{
-      position:absolute;
-      width:100%;
-      height:100%;
-      background:radial-gradient(circle, transparent 20%, black 90%);
-      z-index:-1;
-    }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  gap: 10px;
+  justify-content: center;
+}
 
-    h1{
-      font-size:5rem;
-      letter-spacing:8px;
-      margin-bottom:30px;
-      text-shadow:0 0 20px rgba(255,255,255,0.5);
-      animation:parpadeo 3s infinite;
-    }
+.card {
+  width: 70px;
+  height: 70px;
+  background: #111;
+  border: 1px solid #00ff88;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  cursor: pointer;
+}
 
-    @keyframes parpadeo{
-      0%,100%{
-        opacity:1;
-      }
-      50%{
-        opacity:0.7;
-      }
-    }
+/* --- UNLOCK --- */
+#secret {
+  display: none;
+  margin-top: 40px;
+}
 
-    #countdown{
-      font-size:4rem;
-      font-weight:bold;
-      margin-bottom:40px;
-      text-shadow:0 0 25px rgba(255,0,0,0.8);
-      color:#ff4444;
-    }
+#timer {
+  font-size: 40px;
+  margin: 20px;
+}
 
-    .mensaje{
-      max-width:900px;
-      font-size:1.3rem;
-      letter-spacing:2px;
-      margin-bottom:35px;
-      opacity:0.9;
-      line-height:1.6;
-    }
-
-    .qr{
-      background:white;
-      padding:15px;
-      border-radius:20px;
-      box-shadow:0 0 35px rgba(255,255,255,0.4);
-      transition:0.3s;
-    }
-
-    .qr:hover{
-      transform:scale(1.05);
-    }
-
-    .qr img{
-      width:220px;
-      height:220px;
-      display:block;
-    }
-
-    .footer{
-      position:absolute;
-      bottom:20px;
-      font-size:0.8rem;
-      opacity:0.4;
-      letter-spacing:3px;
-    }
-  </style>
+a {
+  color: #00ff88;
+  font-size: 20px;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="overlay"></div>
+<div id="intro">
+  <h1>ACCESO RESTRINGIDO</h1>
+  <p>Desbloquea el sistema para continuar</p>
+  <button id="startBtn">INICIAR ACCESO</button>
+</div>
 
- 
-  <div id="countdown">CARGANDO...</div>
+<div id="game">
+  <h2>Encuentra todos los pares</h2>
+  <div class="grid" id="grid"></div>
+</div>
 
-  <div class="mensaje">
-    CUANDO CALCULÉIS CUÁNDO ACABA LA CUENTA ATRÁS<br>
-    MIRAD EL QR CON EL MÓVIL
-  </div>
+<div id="secret">
+  <h2>SISTEMA DESBLOQUEADO</h2>
+  <p>CUANDO CALCULEIS CUANDO ACABA LA CUENTA ATRAS, DARLE AL LINK DE ABAJO</p>
+  <div id="timer"></div>
+  <a href="https://TU-LINK-AQUI.COM" target="_blank">IR AL VIDEO</a>
+</div>
 
-  <!-- CAMBIA ESTE LINK -->
-  <div class="qr">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://google.com">
-  </div>
+<script>
+const startBtn = document.getElementById("startBtn");
+const game = document.getElementById("game");
+const grid = document.getElementById("grid");
 
-  <div class="footer">
-    EL TIEMPO SE ACABA
-  </div>
+let emojis = ["💀","💀","🔥","🔥","⚡","⚡","🧠","🧠","👁","👁","💻","💻"];
+let selected = [];
+let matched = 0;
 
-  <script>
-    const targetDate = new Date("December 31, 2026 23:59:59").getTime();
+startBtn.onclick = () => {
+  document.getElementById("intro").style.display = "none";
+  game.style.display = "block";
+  shuffle(emojis);
+  render();
+};
 
-    const countdown = setInterval(() => {
+function shuffle(arr){
+  arr.sort(() => Math.random() - 0.5);
+}
 
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+function render(){
+  grid.innerHTML = "";
+  emojis.forEach((e,i)=>{
+    let div = document.createElement("div");
+    div.className = "card";
+    div.innerText = "";
+    div.onclick = () => flip(div, e);
+    grid.appendChild(div);
+  });
+}
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+function flip(card, value){
+  if(card.innerText || selected.length === 2) return;
 
-      document.getElementById("countdown").innerHTML =
-        `${days}D ${hours}H ${minutes}M ${seconds}S`;
+  card.innerText = value;
+  selected.push({card, value});
 
-      if(distance < 0){
-        clearInterval(countdown);
-        document.getElementById("countdown").innerHTML = "00D 00H 00M 00S";
-      }
+  if(selected.length === 2){
+    setTimeout(check, 500);
+  }
+}
 
-    },1000);
-  </script>
+function check(){
+  if(selected[0].value === selected[1].value){
+    matched += 2;
+    if(matched === emojis.length){
+      unlock();
+    }
+  } else {
+    selected[0].card.innerText = "";
+    selected[1].card.innerText = "";
+  }
+  selected = [];
+}
+
+function unlock(){
+  game.style.display = "none";
+  document.getElementById("secret").style.display = "block";
+
+  const target = new Date("2026-12-26T00:00:00").getTime();
+
+  function update(){
+    const now = Date.now();
+    let d = target - now;
+
+    if(d <= 0){
+      document.getElementById("timer").innerText = "FINALIZADO";
+      return;
+    }
+
+    let days = Math.floor(d / 86400000);
+    let hours = Math.floor((d%86400000)/3600000);
+    let mins = Math.floor((d%3600000)/60000);
+    let secs = Math.floor((d%60000)/1000);
+
+    document.getElementById("timer").innerText =
+      `${days}d ${hours}h ${mins}m ${secs}s`;
+  }
+
+  setInterval(update,1000);
+  update();
+}
+</script>
 
 </body>
 </html>
