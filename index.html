@@ -3,190 +3,310 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SYSTEM ACCESS</title>
+<title>RECUERDOS BLOQUEADOS</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: monospace;
-  background: black;
-  color: white;
-  overflow: hidden;
+*{
+  box-sizing:border-box;
 }
 
-/* 🎬 TRAILER */
-#intro {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background: radial-gradient(circle, #000, #050510);
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:black;
+  color:white;
+  overflow:hidden;
 }
 
-#trailerText {
-  white-space: pre-line;
-  font-size: 16px;
-  max-width: 80%;
-  text-shadow: 0 0 10px black;
+/* 🎬 INTRO */
+#intro{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:30px;
+  background:
+    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.8)),
+    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop") center/cover;
 }
 
-/* 🎮 GAME PANEL (RECTANGULAR CENTRADO) */
-#game {
-  display: none;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #00c9ff);
-  background-size: 400% 400%;
-  animation: bg 10s ease infinite;
+#intro h1{
+  font-size:clamp(34px,6vw,70px);
+  margin:0;
+  letter-spacing:4px;
+  text-shadow:0 0 20px black;
 }
 
-@keyframes bg {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
+#introText{
+  margin-top:25px;
+  max-width:700px;
+  line-height:1.7;
+  font-size:clamp(16px,2vw,22px);
+  text-shadow:0 0 15px black;
 }
 
-/* PANEL RECTANGULAR */
-#panel {
-  width: min(700px, 95vw);
-  aspect-ratio: 1 / 0.85;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+#intro button{
+  margin-top:35px;
+  padding:16px 30px;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#ffd166;
+  color:black;
+  box-shadow:0 0 25px rgba(255,209,102,.8);
 }
 
-/* TIMER */
-#timerTop {
-  text-align: center;
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #00ffcc;
+/* 🎮 GAME */
+#game{
+  display:none;
+  height:100vh;
+  width:100vw;
+
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+
+  background:
+    linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.6)),
+    url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1600&auto=format&fit=crop") center/cover;
 }
 
-/* GRID MÁS COMPACTO */
-#grid {
-  display: grid;
-  grid-template-columns: repeat(12, 44px);
-  gap: 4px;
-  justify-content: center;
+#top{
+  text-align:center;
+  margin-bottom:15px;
 }
 
-/* CARTAS */
-.card {
-  width: 44px;
-  height: 44px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  user-select: none;
+#title{
+  font-size:26px;
+  font-weight:bold;
+  margin-bottom:10px;
+  text-shadow:0 0 15px black;
+}
+
+#timer{
+  font-size:24px;
+  color:#ffd166;
+  font-weight:bold;
+  text-shadow:0 0 15px black;
+}
+
+/* GRID */
+#grid{
+  display:grid;
+  grid-template-columns:repeat(10, 68px);
+  gap:8px;
+  justify-content:center;
+}
+
+/* CARDS */
+.card{
+  width:68px;
+  height:68px;
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(4px);
+
+  border:2px solid rgba(255,255,255,.15);
+
+  transition:.2s;
+}
+
+.card:hover{
+  transform:scale(1.05);
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 /* 🔓 FINAL */
-#secret {
-  display: none;
-  text-align: center;
-  padding: 40px;
+#final{
+  display:none;
+  position:absolute;
+  inset:0;
+
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+
+  background:
+    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.8)),
+    url("https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1600&auto=format&fit=crop") center/cover;
 }
 
-#bigTimer {
-  font-size: 30px;
-  margin: 20px;
+#final h2{
+  font-size:clamp(34px,6vw,60px);
+  margin-bottom:20px;
 }
 
-a {
-  color: #00ffcc;
-  font-size: 20px;
+#countdown{
+  font-size:clamp(26px,5vw,46px);
+  margin:20px;
+  color:#ffd166;
+}
+
+#final p{
+  font-size:20px;
+  max-width:700px;
+  line-height:1.6;
+}
+
+#final a{
+  margin-top:20px;
+  font-size:24px;
+  color:#ffd166;
+  font-weight:bold;
+}
+
+/* 📱 MÓVIL */
+@media(max-width:900px){
+
+  #grid{
+    grid-template-columns:repeat(10, 32px);
+    gap:4px;
+  }
+
+  .card{
+    width:32px;
+    height:32px;
+  }
+
+  #title{
+    font-size:18px;
+  }
+
+  #timer{
+    font-size:20px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🎬 TRAILER -->
+<!-- 🎬 INTRO -->
 <div id="intro">
-  <div id="trailerText"></div>
+
+  <h1>RECUERDOS BLOQUEADOS</h1>
+
+  <div id="introText">
+    Algunos recuerdos no deberían olvidarse jamás...<br><br>
+
+    YAIZA · YAEL · JOEL<br><br>
+
+    Para continuar, debéis reconstruir los recuerdos perdidos.<br><br>
+
+    ⚠️ PARA CONTINUAR DEBÉIS CONSEGUIR TERMINAR EL JUEGO EN:
+  </div>
+
+  <div id="timer">06:00</div>
+
+  <button onclick="startGame()">
+    EMPEZAR
+  </button>
+
 </div>
 
 <!-- 🎮 GAME -->
 <div id="game">
-  <div id="panel">
-    <div id="timerTop"></div>
-    <div id="grid"></div>
+
+  <div id="top">
+    <div id="title">
+      ENCUENTRA TODAS LAS PAREJAS
+    </div>
+
+    <div id="timerGame">
+      TIEMPO RESTANTE: 06:00
+    </div>
   </div>
+
+  <div id="grid"></div>
+
 </div>
 
 <!-- 🔓 FINAL -->
-<div id="secret">
-  <h2>🔓 ACCESS GRANTED</h2>
-  <p>CUANDO CALCULEIS CUANDO ACABA LA CUENTA ATRAS, DARLE AL LINK DE ABAJO</p>
-  <div id="bigTimer"></div>
-  <a href="https://TU-LINK-AQUI.COM">IR AL VIDEO</a>
+<div id="final">
+
+  <h2>❤️ RECUERDOS DESBLOQUEADOS ❤️</h2>
+
+  <p>
+    CUANDO CALCULÉIS CUÁNDO ACABA LA CUENTA ATRÁS,
+    HACED CLICK EN EL ENLACE.
+  </p>
+
+  <div id="countdown"></div>
+
+  <a href="https://TU-LINK-AQUI.COM" target="_blank">
+    VER VIDEO
+  </a>
+
 </div>
 
 <script>
 
-/* 🔊 BIP SYSTEM */
+/* 🔊 BIPS */
 const audio = new (window.AudioContext || window.webkitAudioContext)();
 
-function bip(f,t){
-  let o = audio.createOscillator();
-  let g = audio.createGain();
+function bip(freq,time){
 
-  o.frequency.value = f;
-  o.type = "square";
+  let osc = audio.createOscillator();
+  let gain = audio.createGain();
 
-  g.gain.value = 0.05;
+  osc.frequency.value = freq;
+  osc.type = "square";
 
-  o.connect(g);
-  g.connect(audio.destination);
+  gain.gain.value = 0.03;
 
-  o.start();
-  o.stop(audio.currentTime + t);
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime + time);
 }
 
-/* 🎬 TRAILER */
-const trailer = document.getElementById("trailerText");
+/* 🎧 MÚSICA AMBIENTE */
+function startMusic(){
 
-const story =
-`EN UN SISTEMA CERRADO...
+  let osc = audio.createOscillator();
+  let gain = audio.createGain();
 
-TRES USUARIOS HAN SIDO DETECTADOS:
-YAIZA
-YAEL
-JOEL
+  osc.type = "sine";
+  osc.frequency.value = 110;
 
-EL ACCESO HA SIDO BLOQUEADO...
+  gain.gain.value = 0.015;
 
-SOLO UNA PRUEBA DECIDIRÁ EL RESULTADO`;
+  osc.connect(gain);
+  gain.connect(audio.destination);
 
-let i = 0;
+  osc.start();
 
-function typeTrailer(){
-  if(i < story.length){
-    trailer.innerHTML += story[i];
-    if(i % 3 === 0) bip(150 + Math.random()*300, 0.03);
-    i++;
-    setTimeout(typeTrailer, 35);
-  } else {
-    setTimeout(startGame, 1500);
-  }
+  setInterval(()=>{
+    osc.frequency.value = 90 + Math.random()*40;
+  },900);
 }
 
-typeTrailer();
+/* 📸 FOTOS CARIBE / PLAYAS / NOCHEVIEJA */
+const images = [
 
-/* 🎮 GAME DATA */
-const emojis = [
-"🏖️","🌴","☀️","🌊","🍹","🕶️",
-"⛱️","🏊","🎆","🍇","🥂","🎉"
+"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1473116763249-2faaef81ccda?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?q=80&w=800&auto=format&fit=crop",
+"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=800&auto=format&fit=crop"
+
 ];
 
 let cards = [];
@@ -195,104 +315,132 @@ let matched = 0;
 
 let time = 360;
 let interval;
-let active = false;
 
-/* START */
+/* 🎮 START */
 function startGame(){
+
+  startMusic();
+
   document.getElementById("intro").style.display = "none";
   document.getElementById("game").style.display = "flex";
 
   generate();
   render();
 
-  interval = setInterval(timer,1000);
-  active = true;
+  interval = setInterval(updateTimer,1000);
 }
 
-/* GENERATE 12x12 */
+/* 🔁 GENERATE */
 function generate(){
+
   cards = [];
-  for(let i=0;i<72;i++){
-    let e = emojis[Math.floor(Math.random()*emojis.length)];
-    cards.push({id:i*2,e});
-    cards.push({id:i*2+1,e});
+
+  for(let i=0;i<50;i++){
+
+    let img = images[Math.floor(Math.random()*images.length)];
+
+    cards.push({id:i*2,img});
+    cards.push({id:i*2+1,img});
   }
+
   cards.sort(()=>Math.random()-0.5);
 }
 
-/* RENDER */
+/* 🎨 RENDER */
 function render(){
+
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
   cards.forEach(c=>{
+
     let d = document.createElement("div");
+
     d.className = "card";
-    d.dataset.e = c.e;
+
+    d.dataset.img = c.img;
     d.dataset.id = c.id;
-    d.innerText = "";
+
     d.onclick = ()=>flip(d);
+
     grid.appendChild(d);
   });
 }
 
-/* FLIP + BIP */
+/* 🔄 FLIP */
 function flip(card){
-  if(!active || card.innerText || selected.length===2) return;
 
-  card.innerText = card.dataset.e;
-  bip(400,0.04); // 🔊 BIP AL TOCAR
+  if(card.querySelector("img") || selected.length===2){
+    return;
+  }
+
+  bip(350,0.04);
+
+  let img = document.createElement("img");
+  img.src = card.dataset.img;
+
+  card.appendChild(img);
+
   selected.push(card);
 
   if(selected.length===2){
-    setTimeout(check,300);
+    setTimeout(check,500);
   }
 }
 
-/* CHECK */
+/* ✔ CHECK */
 function check(){
-  if(selected[0].dataset.e === selected[1].dataset.e &&
-     selected[0].dataset.id !== selected[1].dataset.id){
+
+  if(selected[0].dataset.id % 2 === selected[1].dataset.id % 2){
+
     matched += 2;
     bip(800,0.1);
-  } else {
-    selected.forEach(c=>c.innerText="");
+
+  }else{
+
+    selected.forEach(c=>c.innerHTML="");
     bip(120,0.1);
   }
 
   selected = [];
 
-  if(matched === 144){
+  if(matched === 100){
     win();
   }
 }
 
 /* ⏳ TIMER */
-function timer(){
+function updateTimer(){
+
   time--;
 
   let m = Math.floor(time/60);
   let s = time%60;
 
-  document.getElementById("timerTop").innerText =
-    `TIEMPO RESTANTE: ${m}:${s<10?"0"+s:s}`;
+  let txt = `${m}:${s<10?"0"+s:s}`;
+
+  document.getElementById("timerGame").innerText =
+    `TIEMPO RESTANTE: ${txt}`;
 
   if(time<=0){
+
+    alert("⏳ TIEMPO AGOTADO. EL SISTEMA SE REINICIARÁ.");
     location.reload();
   }
 }
 
-/* 🔓 WIN */
+/* ❤️ WIN */
 function win(){
-  active = false;
+
   clearInterval(interval);
 
   document.getElementById("game").style.display = "none";
-  document.getElementById("secret").style.display = "block";
+  document.getElementById("final").style.display = "flex";
 
   const target = new Date("2026-12-26T00:00:00").getTime();
 
   setInterval(()=>{
+
     let now = Date.now();
     let d = target - now;
 
@@ -301,8 +449,9 @@ function win(){
     let mins = Math.floor((d%3600000)/60000);
     let secs = Math.floor((d%60000)/1000);
 
-    document.getElementById("bigTimer").innerText =
+    document.getElementById("countdown").innerText =
       `${days}d ${hours}h ${mins}m ${secs}s`;
+
   },1000);
 }
 
