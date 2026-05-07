@@ -1,303 +1,4 @@
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RECUERDOS BLOQUEADOS</title>
-
-<style>
-
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  overflow:hidden;
-  font-family:Arial, Helvetica, sans-serif;
-  background:black;
-  color:white;
-}
-
-/* 🎬 INTRO */
-#intro{
-  position:absolute;
-  inset:0;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-
-  padding:30px;
-
-  text-align:center;
-
-  background:
-    linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.9)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop")
-    center/cover;
-}
-
-#introText{
-
-  max-width:900px;
-
-  font-size:clamp(18px,2vw,30px);
-
-  line-height:1.4;
-
-  white-space:pre-line;
-
-  text-shadow:0 0 15px black;
-}
-
-#startBtn{
-
-  display:none;
-
-  margin-top:40px;
-
-  padding:16px 34px;
-
-  border:none;
-
-  border-radius:14px;
-
-  background:#ffd166;
-
-  color:black;
-
-  font-size:20px;
-
-  font-weight:bold;
-
-  cursor:pointer;
-
-  box-shadow:0 0 25px rgba(255,209,102,.7);
-}
-
-/* 🎮 GAME */
-#game{
-
-  display:none;
-
-  width:100vw;
-  height:100vh;
-
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-
-  background:
-    linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.65)),
-    url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1600&auto=format&fit=crop")
-    center/cover;
-}
-
-/* TOP */
-#top{
-
-  text-align:center;
-  margin-bottom:15px;
-}
-
-#title{
-
-  font-size:28px;
-  font-weight:bold;
-  margin-bottom:10px;
-
-  text-shadow:0 0 15px black;
-}
-
-#timer{
-
-  font-size:24px;
-  color:#ffd166;
-  font-weight:bold;
-
-  text-shadow:0 0 15px black;
-}
-
-/* GRID */
-#grid{
-
-  display:grid;
-
-  grid-template-columns:repeat(10, 68px);
-
-  gap:8px;
-
-  justify-content:center;
-}
-
-/* CARDS */
-.card{
-
-  width:68px;
-  height:68px;
-
-  border-radius:14px;
-
-  overflow:hidden;
-
-  background:rgba(255,255,255,.15);
-
-  border:2px solid rgba(255,255,255,.15);
-
-  cursor:pointer;
-
-  transition:.2s;
-}
-
-.card:hover{
-  transform:scale(1.04);
-}
-
-.card img{
-
-  width:100%;
-  height:100%;
-
-  object-fit:cover;
-}
-
-/* 🔓 FINAL */
-#final{
-
-  display:none;
-
-  position:absolute;
-  inset:0;
-
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-
-  text-align:center;
-
-  padding:30px;
-
-  background:
-    linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.9)),
-    url("https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1600&auto=format&fit=crop")
-    center/cover;
-}
-
-#final h2{
-
-  font-size:clamp(34px,6vw,60px);
-}
-
-#countdown{
-
-  font-size:clamp(28px,5vw,50px);
-
-  margin:25px;
-
-  color:#ffd166;
-}
-
-#final p{
-
-  font-size:22px;
-
-  max-width:800px;
-
-  line-height:1.7;
-}
-
-#final a{
-
-  margin-top:25px;
-
-  color:#ffd166;
-
-  font-size:26px;
-
-  font-weight:bold;
-}
-
-/* 📱 MOVIL */
-@media(max-width:900px){
-
-  #grid{
-
-    grid-template-columns:repeat(10, 32px);
-
-    gap:4px;
-  }
-
-  .card{
-
-    width:32px;
-    height:32px;
-  }
-
-  #title{
-    font-size:18px;
-  }
-
-  #timer{
-    font-size:20px;
-  }
-}
-
-</style>
-</head>
-
-<body>
-
-<!-- 🎬 INTRO -->
-<div id="intro">
-
-  <div id="introText"></div>
-
-  <button id="startBtn" onclick="startGame()">
-    EMPEZAR
-  </button>
-
-</div>
-
-<!-- 🎮 GAME -->
-<div id="game">
-
-  <div id="top">
-
-    <div id="title">
-      ENCUENTRA TODAS LAS PAREJAS
-    </div>
-
-    <div id="timer">
-      TIEMPO RESTANTE: 06:00
-    </div>
-
-  </div>
-
-  <div id="grid"></div>
-
-</div>
-
-<!-- 🔓 FINAL -->
-<div id="final">
-
-  <h2>❤️ RECUERDOS DESBLOQUEADOS ❤️</h2>
-
-  <p>
-    CUANDO CALCULÉIS CUÁNDO ACABA LA CUENTA ATRÁS,
-    HACED CLICK EN EL ENLACE.
-  </p>
-
-  <div id="countdown"></div>
-
-  <a href="https://TU-LINK-AQUI.COM" target="_blank">
-    VER VIDEO
-  </a>
-
-</div>
-
+```html id="fix_memory_game_logic"
 <script>
 
 /* 🔊 AUDIO */
@@ -344,7 +45,7 @@ function startMusic(){
   },900);
 }
 
-/* 🎬 INTRO TEXTO */
+/* 🎬 INTRO TEXTO MÁS LENTO */
 const introText =
   document.getElementById("introText");
 
@@ -386,11 +87,16 @@ function typeText(){
 
     index++;
 
-    setTimeout(typeText,30);
+    // ⬅ MÁS LENTO
+    setTimeout(typeText,55);
 
   }else{
 
-    startBtn.style.display = "block";
+    setTimeout(()=>{
+
+      startBtn.style.display = "block";
+
+    },800);
   }
 }
 
@@ -449,32 +155,29 @@ function generateCards(){
 
   cards = [];
 
+  // ✅ parejas reales
   for(let i=0;i<50;i++){
 
     let img =
       images[
-        Math.floor(
-          Math.random()*images.length
-        )
+        i % images.length
       ];
 
     cards.push({
 
-      unique:i+"a",
-
+      id:"a"+i,
       pair:i,
-
-      img
+      img,
+      matched:false
 
     });
 
     cards.push({
 
-      unique:i+"b",
-
+      id:"b"+i,
       pair:i,
-
-      img
+      img,
+      matched:false
 
     });
   }
@@ -499,9 +202,11 @@ function renderCards(){
 
     div.dataset.pair = card.pair;
 
-    div.dataset.unique = card.unique;
+    div.dataset.id = card.id;
 
     div.dataset.img = card.img;
+
+    div.dataset.matched = "false";
 
     div.onclick = ()=>flip(div);
 
@@ -514,9 +219,11 @@ function flip(card){
 
   if(lockBoard) return;
 
+  // ✅ si ya esta descubierta
   if(card.querySelector("img")) return;
 
-  if(selected.includes(card)) return;
+  // ✅ si ya esta emparejada
+  if(card.dataset.matched === "true") return;
 
   bip(320,0.04);
 
@@ -533,7 +240,7 @@ function flip(card){
 
     lockBoard = true;
 
-    setTimeout(checkMatch,700);
+    setTimeout(checkMatch,900);
   }
 }
 
@@ -542,7 +249,15 @@ function checkMatch(){
 
   const [a,b] = selected;
 
-  if(a.dataset.pair === b.dataset.pair){
+  // ✅ misma pareja y no misma carta
+  if(
+    a.dataset.pair === b.dataset.pair &&
+    a.dataset.id !== b.dataset.id
+  ){
+
+    // ✅ quedan fijas
+    a.dataset.matched = "true";
+    b.dataset.matched = "true";
 
     matched += 2;
 
@@ -564,14 +279,13 @@ function checkMatch(){
     setTimeout(()=>{
 
       a.innerHTML = "";
-
       b.innerHTML = "";
 
       selected = [];
 
       lockBoard = false;
 
-    },300);
+    },400);
   }
 }
 
@@ -651,7 +365,5 @@ function win(){
 }
 
 </script>
-
-</body>
-</html>
 ```
+
