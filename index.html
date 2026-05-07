@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROTOCOLO VACACIONES - SISTEMA DE SEGURIDAD</title>
+    <title>SISTEMA DE VERIFICACIÓN DE IDENTIDAD</title>
     <style>
         :root {
-            --neon-green: #39ff14;
-            --dark-bg: #0a0a0a;
-            --grid-size: 8; /* Tablero 8x8 */
+            --neon: #39ff14;
+            --dark: #0a0a0a;
         }
 
         body {
-            background-color: var(--dark-bg);
-            color: var(--neon-green);
+            background-color: var(--dark);
+            color: var(--neon);
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
             overflow: hidden;
@@ -24,7 +23,7 @@
             text-transform: uppercase;
         }
 
-        /* Efecto scanlines CRT */
+        /* Capa de efecto monitor antiguo */
         body::before {
             content: " ";
             display: block;
@@ -42,120 +41,96 @@
             flex-direction: column;
             align-items: center;
             width: 90%;
-            max-width: 900px;
+            max-width: 850px;
         }
 
         #introText {
             font-size: 1.2rem;
-            line-height: 1.5;
-            min-height: 250px;
-            text-shadow: 0 0 5px var(--neon-green);
+            line-height: 1.6;
+            min-height: 300px;
+            text-shadow: 0 0 5px var(--neon);
+            white-space: pre-wrap;
         }
 
         .btn {
             background: transparent;
-            color: var(--neon-green);
-            border: 2px solid var(--neon-green);
-            padding: 15px 30px;
+            color: var(--neon);
+            border: 2px solid var(--neon);
+            padding: 15px 35px;
             font-family: inherit;
             cursor: pointer;
             margin-top: 20px;
-            transition: all 0.3s;
+            font-size: 1.1rem;
             display: none;
             z-index: 20;
         }
 
         .btn:hover {
-            background: var(--neon-green);
+            background: var(--neon);
             color: black;
-            box-shadow: 0 0 20px var(--neon-green);
+            box-shadow: 0 0 20px var(--neon);
         }
 
-        /* Grid de Juego 8x8 */
+        /* Grid 8x8 */
         #grid {
             display: grid;
-            grid-template-columns: repeat(var(--grid-size), 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
             width: 100%;
-            max-width: 750px; /* Más ancho para cartas más grandes */
+            max-width: 700px;
         }
 
         .card {
             aspect-ratio: 1 / 1;
-            border: 2px solid var(--neon-green);
+            border: 2px solid var(--neon);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             background: #111;
-            font-size: 2.5rem; /* Tamaño de los símbolos */
-            user-select: none;
-            transition: transform 0.2s, background 0.3s;
+            font-size: 2.2rem;
+            transition: transform 0.2s;
         }
 
-        .card:hover {
-            transform: scale(1.05);
-            background: #1a1a1a;
-        }
-
-        .card .content {
-            display: none;
-        }
-
-        .card.flipped {
-            background: #222;
-            transform: rotateY(180deg);
-        }
-
-        .card.flipped .content {
-            display: block;
-            transform: rotateY(180deg);
-        }
+        .card .inner { display: none; }
+        .card.flipped .inner { display: block; }
 
         .card.matched {
             border-color: transparent;
             background: transparent;
             cursor: default;
         }
-        
-        .card.matched .content {
-            opacity: 0.3;
-        }
+        .card.matched .inner { opacity: 0.2; }
 
-        #gameHeader {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
+        #timer {
+            font-size: 2.5rem;
             margin-bottom: 20px;
-            font-size: 1.5rem;
-            text-shadow: 0 0 10px var(--neon-green);
+            text-shadow: 0 0 10px var(--neon);
         }
 
-        #countdown { font-size: 3rem; text-align: center; }
+        #countdown { font-size: 3rem; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <div id="intro">
         <div id="introText"></div>
-        <button id="startBtn" class="btn" onclick="startGame()">INICIAR PROTOCOLO CARIBE</button>
+        <button id="startBtn" class="btn" onclick="startGame()">ACCEDER AL SISTEMA</button>
     </div>
 
     <div id="game" style="display: none;">
-        <div id="gameHeader">
-            <span>PAREJAS: <span id="matches">0</span>/32</span>
-            <span id="timer">06:00</span>
-        </div>
+        <div id="timer">TIEMPO RESTANTE: 06:00</div>
         <div id="grid"></div>
     </div>
 
     <div id="final" style="display: none;">
-        <h2>ACCESO TOTAL CONCEDIDO</h2>
-        <p>REINICIO DE SISTEMA EN:</p>
+        <h2>SOLICITUD AUTORIZADA</h2>
+        <p>PRÓXIMA FASE EN:</p>
         <div id="countdown"></div>
     </div>
 
 <script>
+/* 🔊 MOTOR DE AUDIO (ROUTER + EFECTOS) */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound(freq, type, duration, vol) {
@@ -171,158 +146,154 @@ function playSound(freq, type, duration, vol) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-function playFaxSound() {
-    for(let i=0; i<20; i++) {
-        setTimeout(() => {
-            playSound(800 + Math.random() * 1200, 'sawtooth', 0.1, 0.01);
-            playSound(400 + Math.random() * 400, 'sine', 0.1, 0.01);
-        }, i * 100);
+// Sonido de Router/Fax antiguo (ruidoso y digital)
+function playRouterSound() {
+    let now = audioCtx.currentTime;
+    for(let i=0; i<30; i++) {
+        let time = now + (i * 0.1);
+        let f = 600 + Math.random() * 1400;
+        let type = i % 2 === 0 ? 'sawtooth' : 'square';
+        
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(f, time);
+        g.gain.setValueAtTime(0.015, time);
+        g.gain.linearRampToValueAtTime(0, time + 0.08);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(time);
+        osc.stop(time + 0.08);
     }
 }
 
-/* 🌴 SÍMBOLOS TEMÁTICOS */
-const symbols = [
-    "🏝️", "🏖️", "🥥", "🍹", "🍍", "🌊", "☀️", "🚢", // Caribe/Playa
-    "🎄", "🎅", "🎁", "❄️", "🌟", "🔔", "🍪", "🕯️", // Navidad
-    "🎆", "🍾", "🥂", "🎉", "🎈", "🕛", "🍇", "💃", // Nochevieja
-    "🎷", "🎸", "🎵", "🌅", "🦜", "🐚", "🦀", "🐠"  // Extra Caribe
-];
-
+/* ✍️ TEXTO ORIGINAL */
 const lines = [
-    "CONECTANDO CON SATÉLITE REGIONAL... [CARIBE_NET]",
-    "CARGANDO PROTOCOLO DE CELEBRACIÓN...",
-    "ESTABLECIENDO CONEXIÓN SEGURA...",
+    "DETECTANDO USUARIOS CONECTADOS",
+    "PARA VERIFICAR AUTORIZACION",
     "",
-    "USUARIOS DETECTADOS:",
-    "> YAIZA (MODO VACACIONES: ACTIVADO)",
-    "> YAEL (MODO VACACIONES: ACTIVADO)",
-    "> JOEL (MODO VACACIONES: ACTIVADO)",
+    "YAIZA",
+    "YAEL",
+    "JOEL",
     "",
-    "SOLICITUD DE DESCONEXIÓN: APROBADA",
+    "SOLICITUD AUTORIZADA",
     "",
-    "OBJETIVO: RESOLVER EL TABLERO 8x8 EN 6 MINUTOS.",
-    "ERROR: EL SISTEMA SE AUTODESTRUIRÁ SI NO COMPLETÁIS LA FASE."
+    "TENEIS 6 MINUTOS PARA COMPLETAR",
+    "EL JUEGO DE LAS PAREJAS SIGUIENTES",
+    "PARA PASAR A LA SIGUIENTE FASE"
 ];
 
-let lineIdx = 0, charIdx = 0;
+let currentLine = 0, currentChar = 0;
 const introDiv = document.getElementById("introText");
 
-function type() {
-    if (lineIdx < lines.length) {
-        let currentLine = lines[lineIdx];
-        if (charIdx < currentLine.length) {
-            introDiv.innerHTML += currentLine[charIdx];
-            playSound(300 + Math.random() * 100, 'square', 0.05, 0.01);
-            charIdx++;
-            setTimeout(type, 40);
+function typeLine() {
+    if (currentLine < lines.length) {
+        let line = lines[currentLine];
+        if (currentChar < line.length) {
+            introDiv.innerHTML += line[currentChar];
+            playSound(180 + Math.random() * 120, 'square', 0.05, 0.02);
+            currentChar++;
+            setTimeout(typeLine, 55);
         } else {
             introDiv.innerHTML += "<br>";
-            lineIdx++;
-            charIdx = 0;
-            setTimeout(type, currentLine.includes(">") ? 800 : 400);
+            currentLine++;
+            currentChar = 0;
+            let pause = 400;
+            if(["YAIZA", "YAEL", "JOEL"].includes(line)) pause = 1200;
+            if(line === "SOLICITUD AUTORIZADA") pause = 1500;
+            setTimeout(typeLine, pause);
         }
     } else {
         document.getElementById("startBtn").style.display = "block";
     }
 }
 
-window.onload = () => {
-    playFaxSound();
-    setTimeout(type, 1000);
+// Iniciar al cargar (requiere primer clic del usuario para audio en algunos navegadores)
+window.onclick = () => {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+        playRouterSound();
+        typeLine();
+        window.onclick = null; // Desactivar este evento
+    }
 };
 
-/* 🎮 LÓGICA DEL JUEGO */
-let cards = [], selected = [], matchedCount = 0, timeLeft = 360;
-let lockBoard = false, timerInterval;
+// Si el navegador permite autoplay:
+window.onload = () => {
+    introDiv.innerHTML = "HAGA CLIC EN CUALQUIER LUGAR PARA CONECTAR...";
+};
+
+/* 🎮 JUEGO 8x8 TEMÁTICO */
+const icons = [
+    "🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢",
+    "🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️",
+    "🎆","🍾","🥂","🎉","🎈","🕛","🍇","💃",
+    "🎷","🎸","🎵","🌅","🦜","🐚","🦀","🐠"
+];
+
+let selected = [], matchedCount = 0, timeLeft = 360, timerInterval;
 
 function startGame() {
-    audioCtx.resume();
     document.getElementById("intro").style.display = "none";
     document.getElementById("game").style.display = "flex";
-    setupBoard();
-    timerInterval = setInterval(updateTimer, 1000);
-}
-
-function setupBoard() {
-    // 32 parejas para llenar el tablero de 64 (8x8)
+    
     let deck = [];
     for(let i=0; i<32; i++) {
-        deck.push({ id: i, sym: symbols[i] });
-        deck.push({ id: i, sym: symbols[i] });
+        deck.push({ id: i, icon: icons[i] });
+        deck.push({ id: i, icon: icons[i] });
     }
-    cards = deck.sort(() => Math.random() - 0.5);
+    deck.sort(() => Math.random() - 0.5);
 
     const grid = document.getElementById("grid");
-    cards.forEach((card) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.dataset.id = card.id;
-        div.innerHTML = `<div class="content">${card.sym}</div>`;
-        div.onclick = () => flipCard(div);
-        grid.appendChild(div);
+    deck.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = item.id;
+        card.innerHTML = `<span class="inner">${item.icon}</span>`;
+        card.onclick = () => {
+            if(selected.length < 2 && !card.classList.contains('flipped')) {
+                playSound(400, 'sine', 0.1, 0.03);
+                card.classList.add('flipped');
+                selected.push(card);
+                if(selected.length === 2) setTimeout(checkMatch, 600);
+            }
+        };
+        grid.appendChild(card);
     });
-}
 
-function flipCard(el) {
-    if (lockBoard || el.classList.contains('flipped') || el.classList.contains('matched')) return;
-
-    playSound(500, 'sine', 0.1, 0.02);
-    el.classList.add('flipped');
-    selected.push(el);
-
-    if (selected.length === 2) {
-        lockBoard = true;
-        setTimeout(checkMatch, 600);
-    }
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById("timer").innerText = `TIEMPO RESTANTE: ${m}:${s < 10 ? '0'+s : s}`;
+        if(timeLeft <= 0) location.reload();
+    }, 1000);
 }
 
 function checkMatch() {
-    const [c1, c2] = selected;
-    if (c1.dataset.id === c2.dataset.id) {
-        playSound(900, 'sine', 0.2, 0.03);
-        c1.classList.add('matched');
-        c2.classList.add('matched');
+    const [a, b] = selected;
+    if (a.dataset.id === b.dataset.id) {
+        playSound(800, 'sine', 0.2, 0.04);
+        a.classList.add('matched'); b.classList.add('matched');
         matchedCount++;
-        document.getElementById("matches").innerText = matchedCount;
-        selected = [];
-        lockBoard = false;
-        if (matchedCount === 32) win();
+        if(matchedCount === 32) win();
     } else {
-        playSound(100, 'sawtooth', 0.2, 0.02);
-        setTimeout(() => {
-            c1.classList.remove('flipped');
-            c2.classList.remove('flipped');
-            selected = [];
-            lockBoard = false;
-        }, 500);
+        playSound(150, 'sawtooth', 0.2, 0.03);
+        a.classList.remove('flipped'); b.classList.remove('flipped');
     }
-}
-
-function updateTimer() {
-    timeLeft--;
-    let m = Math.floor(timeLeft / 60);
-    let s = timeLeft % 60;
-    document.getElementById("timer").innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-    if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        alert("SISTEMA BLOQUEADO. REINICIANDO PROTOCOLO...");
-        location.reload();
-    }
+    selected = [];
 }
 
 function win() {
     clearInterval(timerInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("final").style.display = "flex";
-    playFaxSound();
+    playRouterSound();
     
     const target = new Date("2026-12-26T00:00:00").getTime();
     setInterval(() => {
         const diff = target - Date.now();
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
+        const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
         document.getElementById("countdown").innerText = `${d}d ${h}h ${m}m ${s}s`;
     }, 1000);
 }
