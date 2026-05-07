@@ -1,88 +1,106 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RECUERDOS BLOQUEADOS</title>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
 
 body{
   margin:0;
+  overflow:hidden;
   font-family:Arial, Helvetica, sans-serif;
   background:black;
   color:white;
-  overflow:hidden;
 }
 
 /* 🎬 INTRO */
 #intro{
   position:absolute;
   inset:0;
+
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  text-align:center;
-  padding:30px;
-  background:
-    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.8)),
-    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop") center/cover;
-}
 
-#intro h1{
-  font-size:clamp(34px,6vw,70px);
-  margin:0;
-  letter-spacing:4px;
-  text-shadow:0 0 20px black;
+  padding:30px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.9)),
+    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop")
+    center/cover;
 }
 
 #introText{
-  margin-top:25px;
-  max-width:700px;
-  line-height:1.7;
-  font-size:clamp(16px,2vw,22px);
+  max-width:900px;
+
+  font-size:clamp(18px,2vw,30px);
+
+  line-height:1.8;
+
+  white-space:pre-line;
+
   text-shadow:0 0 15px black;
 }
 
-#intro button{
-  margin-top:35px;
-  padding:16px 30px;
+#startBtn{
+  display:none;
+
+  margin-top:40px;
+
+  padding:16px 34px;
+
   border:none;
+
   border-radius:14px;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
+
   background:#ffd166;
+
   color:black;
-  box-shadow:0 0 25px rgba(255,209,102,.8);
+
+  font-size:20px;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+  box-shadow:0 0 25px rgba(255,209,102,.7);
 }
 
 /* 🎮 GAME */
 #game{
   display:none;
-  height:100vh;
+
   width:100vw;
+  height:100vh;
 
   justify-content:center;
   align-items:center;
   flex-direction:column;
 
   background:
-    linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.6)),
-    url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1600&auto=format&fit=crop") center/cover;
+    linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.6)),
+    url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1600&auto=format&fit=crop")
+    center/cover;
 }
 
+/* TOP */
 #top{
   text-align:center;
   margin-bottom:15px;
 }
 
 #title{
-  font-size:26px;
+  font-size:28px;
   font-weight:bold;
   margin-bottom:10px;
   text-shadow:0 0 15px black;
@@ -107,19 +125,22 @@ body{
 .card{
   width:68px;
   height:68px;
+
   border-radius:14px;
+
   overflow:hidden;
-  cursor:pointer;
+
   background:rgba(255,255,255,.15);
-  backdrop-filter:blur(4px);
 
   border:2px solid rgba(255,255,255,.15);
+
+  cursor:pointer;
 
   transition:.2s;
 }
 
 .card:hover{
-  transform:scale(1.05);
+  transform:scale(1.04);
 }
 
 .card img{
@@ -131,44 +152,48 @@ body{
 /* 🔓 FINAL */
 #final{
   display:none;
+
   position:absolute;
   inset:0;
 
   justify-content:center;
   align-items:center;
   flex-direction:column;
+
   text-align:center;
 
+  padding:30px;
+
   background:
-    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.8)),
-    url("https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1600&auto=format&fit=crop") center/cover;
+    linear-gradient(rgba(0,0,0,.7), rgba(0,0,0,.9)),
+    url("https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=1600&auto=format&fit=crop")
+    center/cover;
 }
 
 #final h2{
   font-size:clamp(34px,6vw,60px);
-  margin-bottom:20px;
 }
 
 #countdown{
-  font-size:clamp(26px,5vw,46px);
-  margin:20px;
+  font-size:clamp(28px,5vw,50px);
+  margin:25px;
   color:#ffd166;
 }
 
 #final p{
-  font-size:20px;
-  max-width:700px;
-  line-height:1.6;
+  font-size:22px;
+  max-width:800px;
+  line-height:1.7;
 }
 
 #final a{
-  margin-top:20px;
-  font-size:24px;
+  margin-top:25px;
   color:#ffd166;
+  font-size:26px;
   font-weight:bold;
 }
 
-/* 📱 MÓVIL */
+/* 📱 MOVIL */
 @media(max-width:900px){
 
   #grid{
@@ -189,6 +214,7 @@ body{
     font-size:20px;
   }
 }
+
 </style>
 </head>
 
@@ -197,21 +223,9 @@ body{
 <!-- 🎬 INTRO -->
 <div id="intro">
 
-  <h1>RECUERDOS BLOQUEADOS</h1>
+  <div id="introText"></div>
 
-  <div id="introText">
-    Algunos recuerdos no deberían olvidarse jamás...<br><br>
-
-    YAIZA · YAEL · JOEL<br><br>
-
-    Para continuar, debéis reconstruir los recuerdos perdidos.<br><br>
-
-    ⚠️ PARA CONTINUAR DEBÉIS CONSEGUIR TERMINAR EL JUEGO EN:
-  </div>
-
-  <div id="timer">06:00</div>
-
-  <button onclick="startGame()">
+  <button id="startBtn" onclick="startGame()">
     EMPEZAR
   </button>
 
@@ -221,13 +235,15 @@ body{
 <div id="game">
 
   <div id="top">
+
     <div id="title">
       ENCUENTRA TODAS LAS PAREJAS
     </div>
 
-    <div id="timerGame">
+    <div id="timer">
       TIEMPO RESTANTE: 06:00
     </div>
+
   </div>
 
   <div id="grid"></div>
@@ -254,7 +270,7 @@ body{
 
 <script>
 
-/* 🔊 BIPS */
+/* 🔊 AUDIO */
 const audio = new (window.AudioContext || window.webkitAudioContext)();
 
 function bip(freq,time){
@@ -274,7 +290,7 @@ function bip(freq,time){
   osc.stop(audio.currentTime + time);
 }
 
-/* 🎧 MÚSICA AMBIENTE */
+/* 🎧 MÚSICA */
 function startMusic(){
 
   let osc = audio.createOscillator();
@@ -295,7 +311,56 @@ function startMusic(){
   },900);
 }
 
-/* 📸 FOTOS CARIBE / PLAYAS / NOCHEVIEJA */
+/* 🎬 TEXTO INTRO */
+const introText = document.getElementById("introText");
+const startBtn = document.getElementById("startBtn");
+
+const message =
+`DETECTANDO USUARIOS CONECTADOS
+PARA VERIFICAR AUTORIZACION...............
+
+
+YAIZA......
+
+YAEL......
+
+JOEL............
+
+
+SOLICITUD AUTORIZADA
+
+
+TENEIS 6 MINUTOS PARA COMPLETAR
+EL JUEGO DE LAS PAREJAS SIGUIENTES
+PARA PASAR A LA SIGUIENTE FASE`;
+
+let index = 0;
+
+function typeText(){
+
+  if(index < message.length){
+
+    introText.innerHTML += message[index];
+
+    if(message[index] !== " " && message[index] !== "\n"){
+      bip(180 + Math.random()*120,0.02);
+    }
+
+    index++;
+
+    setTimeout(typeText,35);
+
+  }else{
+
+    setTimeout(()=>{
+      startBtn.style.display = "block";
+    },700);
+  }
+}
+
+typeText();
+
+/* 📸 IMÁGENES */
 const images = [
 
 "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
@@ -312,26 +377,27 @@ const images = [
 let cards = [];
 let selected = [];
 let matched = 0;
+let lockBoard = false;
 
 let time = 360;
-let interval;
+let timerInterval;
 
-/* 🎮 START */
+/* 🎮 START GAME */
 function startGame(){
-
-  startMusic();
 
   document.getElementById("intro").style.display = "none";
   document.getElementById("game").style.display = "flex";
 
-  generate();
-  render();
+  startMusic();
 
-  interval = setInterval(updateTimer,1000);
+  generateCards();
+  renderCards();
+
+  timerInterval = setInterval(updateTimer,1000);
 }
 
 /* 🔁 GENERATE */
-function generate(){
+function generateCards(){
 
   cards = [];
 
@@ -339,42 +405,55 @@ function generate(){
 
     let img = images[Math.floor(Math.random()*images.length)];
 
-    cards.push({id:i*2,img});
-    cards.push({id:i*2+1,img});
+    cards.push({
+      unique:i+"a",
+      pair:i,
+      img
+    });
+
+    cards.push({
+      unique:i+"b",
+      pair:i,
+      img
+    });
   }
 
   cards.sort(()=>Math.random()-0.5);
 }
 
 /* 🎨 RENDER */
-function render(){
+function renderCards(){
 
   const grid = document.getElementById("grid");
+
   grid.innerHTML = "";
 
-  cards.forEach(c=>{
+  cards.forEach(card=>{
 
-    let d = document.createElement("div");
+    let div = document.createElement("div");
 
-    d.className = "card";
+    div.className = "card";
 
-    d.dataset.img = c.img;
-    d.dataset.id = c.id;
+    div.dataset.pair = card.pair;
+    div.dataset.unique = card.unique;
+    div.dataset.img = card.img;
 
-    d.onclick = ()=>flip(d);
+    div.onclick = ()=>flip(div);
 
-    grid.appendChild(d);
+    grid.appendChild(div);
   });
 }
 
 /* 🔄 FLIP */
 function flip(card){
 
-  if(card.querySelector("img") || selected.length===2){
-    return;
-  }
+  if(lockBoard) return;
 
-  bip(350,0.04);
+  if(card.querySelector("img")) return;
+
+  if(selected.includes(card)) return;
+
+  bip(320,0.04);
 
   let img = document.createElement("img");
   img.src = card.dataset.img;
@@ -383,29 +462,45 @@ function flip(card){
 
   selected.push(card);
 
-  if(selected.length===2){
-    setTimeout(check,500);
+  if(selected.length === 2){
+
+    lockBoard = true;
+
+    setTimeout(checkMatch,700);
   }
 }
 
 /* ✔ CHECK */
-function check(){
+function checkMatch(){
 
-  if(selected[0].dataset.id % 2 === selected[1].dataset.id % 2){
+  const [a,b] = selected;
+
+  if(a.dataset.pair === b.dataset.pair){
 
     matched += 2;
-    bip(800,0.1);
+
+    bip(800,0.08);
+
+    selected = [];
+    lockBoard = false;
+
+    if(matched === 100){
+      win();
+    }
 
   }else{
 
-    selected.forEach(c=>c.innerHTML="");
     bip(120,0.1);
-  }
 
-  selected = [];
+    setTimeout(()=>{
 
-  if(matched === 100){
-    win();
+      a.innerHTML = "";
+      b.innerHTML = "";
+
+      selected = [];
+      lockBoard = false;
+
+    },300);
   }
 }
 
@@ -419,12 +514,13 @@ function updateTimer(){
 
   let txt = `${m}:${s<10?"0"+s:s}`;
 
-  document.getElementById("timerGame").innerText =
+  document.getElementById("timer").innerText =
     `TIEMPO RESTANTE: ${txt}`;
 
-  if(time<=0){
+  if(time <= 0){
 
-    alert("⏳ TIEMPO AGOTADO. EL SISTEMA SE REINICIARÁ.");
+    alert("⏳ TIEMPO AGOTADO - REINICIANDO SISTEMA");
+
     location.reload();
   }
 }
@@ -432,22 +528,30 @@ function updateTimer(){
 /* ❤️ WIN */
 function win(){
 
-  clearInterval(interval);
+  clearInterval(timerInterval);
 
   document.getElementById("game").style.display = "none";
   document.getElementById("final").style.display = "flex";
 
-  const target = new Date("2026-12-26T00:00:00").getTime();
+  const target =
+    new Date("2026-12-26T00:00:00").getTime();
 
   setInterval(()=>{
 
     let now = Date.now();
-    let d = target - now;
 
-    let days = Math.floor(d/86400000);
-    let hours = Math.floor((d%86400000)/3600000);
-    let mins = Math.floor((d%3600000)/60000);
-    let secs = Math.floor((d%60000)/1000);
+    let diff = target - now;
+
+    let days = Math.floor(diff / 86400000);
+
+    let hours =
+      Math.floor((diff % 86400000)/3600000);
+
+    let mins =
+      Math.floor((diff % 3600000)/60000);
+
+    let secs =
+      Math.floor((diff % 60000)/1000);
 
     document.getElementById("countdown").innerText =
       `${days}d ${hours}h ${mins}m ${secs}s`;
@@ -459,3 +563,4 @@ function win(){
 
 </body>
 </html>
+```
