@@ -1,4 +1,19 @@
+No pongas esto:
+
+````html
 ```html id="fix_memory_game_logic"
+````
+
+````
+
+Eso era solo para marcar el bloque aquí en el chat.  
+En tu `index.html` SOLO tienes que pegar el código normal.
+
+---
+
+Sustituye TODO tu `<script>...</script>` por este completo:
+
+```html
 <script>
 
 /* 🔊 AUDIO */
@@ -21,7 +36,7 @@ function bip(freq,time){
   osc.stop(audio.currentTime + time);
 }
 
-/* 🎧 MUSICA */
+/* 🎧 MÚSICA */
 function startMusic(){
 
   let osc = audio.createOscillator();
@@ -45,64 +60,110 @@ function startMusic(){
   },900);
 }
 
-/* 🎬 INTRO TEXTO MÁS LENTO */
+/* 🎬 INTRO */
 const introText =
   document.getElementById("introText");
 
 const startBtn =
   document.getElementById("startBtn");
 
-const message =
-`DETECTANDO USUARIOS CONECTADOS
-PARA VERIFICAR AUTORIZACION
+/* ✍️ ESCRITURA CINEMATOGRÁFICA */
+const lines = [
 
-YAIZA
-YAEL
-JOEL
+"DETECTANDO USUARIOS CONECTADOS",
+"PARA VERIFICAR AUTORIZACION",
 
-SOLICITUD AUTORIZADA
+"",
+"",
 
-TENEIS 6 MINUTOS PARA COMPLETAR
-EL JUEGO DE LAS PAREJAS SIGUIENTES
-PARA PASAR A LA SIGUIENTE FASE`;
+"YAIZA",
 
-let index = 0;
+"",
+"",
 
-function typeText(){
+"YAEL",
 
-  if(index < message.length){
+"",
+"",
 
-    introText.innerHTML += message[index];
+"JOEL",
 
-    if(
-      message[index] !== " " &&
-      message[index] !== "\n"
-    ){
+"",
+"",
 
-      bip(
-        180 + Math.random()*120,
-        0.02
-      );
-    }
+"SOLICITUD AUTORIZADA",
 
-    index++;
+"",
+"",
 
-    // ⬅ MÁS LENTO
-    setTimeout(typeText,55);
+"TENEIS 6 MINUTOS PARA COMPLETAR",
+"EL JUEGO DE LAS PAREJAS SIGUIENTES",
+"PARA PASAR A LA SIGUIENTE FASE"
 
-  }else{
+];
+
+let currentLine = 0;
+let currentChar = 0;
+
+function typeLine(){
+
+  if(currentLine >= lines.length){
 
     setTimeout(()=>{
 
       startBtn.style.display = "block";
 
-    },800);
+    },1000);
+
+    return;
+  }
+
+  let line = lines[currentLine];
+
+  if(currentChar < line.length){
+
+    introText.innerHTML += line[currentChar];
+
+    bip(
+      180 + Math.random()*120,
+      0.02
+    );
+
+    currentChar++;
+
+    setTimeout(typeLine,55);
+
+  }else{
+
+    introText.innerHTML += "<br>";
+
+    currentLine++;
+    currentChar = 0;
+
+    // ⏸ PAUSAS
+    let pause = 400;
+
+    if(
+      line === "YAIZA" ||
+      line === "YAEL" ||
+      line === "JOEL"
+    ){
+      pause = 1200;
+    }
+
+    if(
+      line === "SOLICITUD AUTORIZADA"
+    ){
+      pause = 1500;
+    }
+
+    setTimeout(typeLine,pause);
   }
 }
 
-typeText();
+typeLine();
 
-/* 📸 IMAGENES */
+/* 📸 IMÁGENES */
 const images = [
 
 "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
@@ -155,20 +216,16 @@ function generateCards(){
 
   cards = [];
 
-  // ✅ parejas reales
   for(let i=0;i<50;i++){
 
     let img =
-      images[
-        i % images.length
-      ];
+      images[i % images.length];
 
     cards.push({
 
       id:"a"+i,
       pair:i,
-      img,
-      matched:false
+      img
 
     });
 
@@ -176,8 +233,7 @@ function generateCards(){
 
       id:"b"+i,
       pair:i,
-      img,
-      matched:false
+      img
 
     });
   }
@@ -201,11 +257,8 @@ function renderCards(){
     div.className = "card";
 
     div.dataset.pair = card.pair;
-
     div.dataset.id = card.id;
-
     div.dataset.img = card.img;
-
     div.dataset.matched = "false";
 
     div.onclick = ()=>flip(div);
@@ -219,10 +272,8 @@ function flip(card){
 
   if(lockBoard) return;
 
-  // ✅ si ya esta descubierta
   if(card.querySelector("img")) return;
 
-  // ✅ si ya esta emparejada
   if(card.dataset.matched === "true") return;
 
   bip(320,0.04);
@@ -249,13 +300,11 @@ function checkMatch(){
 
   const [a,b] = selected;
 
-  // ✅ misma pareja y no misma carta
   if(
     a.dataset.pair === b.dataset.pair &&
     a.dataset.id !== b.dataset.id
   ){
 
-    // ✅ quedan fijas
     a.dataset.matched = "true";
     b.dataset.matched = "true";
 
@@ -365,5 +414,4 @@ function win(){
 }
 
 </script>
-```
-
+````
