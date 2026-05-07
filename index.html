@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA DE VERIFICACIÓN DE IDENTIDAD</title>
+    <title>SISTEMA DE VERIFICACIÓN PRO</title>
     <style>
         :root {
             --neon: #39ff14;
-            --dark: #0a0a0a;
+            --neon-glow: rgba(57, 255, 20, 0.3);
+            --dark: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body {
             background-color: var(--dark);
             color: var(--neon);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', 'Courier New', monospace;
             margin: 0;
+            padding: 0;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -23,16 +26,16 @@
             text-transform: uppercase;
         }
 
-        /* Capa de efecto monitor antiguo */
+        /* Scanlines y Vignette Moderno */
         body::before {
-            content: " ";
-            display: block;
+            content: "";
             position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 10;
-            background-size: 100% 4px, 3px 100%;
+            inset: 0;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                radial-gradient(circle, transparent 20%, black 150%);
+            background-size: 100% 4px, 100% 100%;
+            z-index: 100;
             pointer-events: none;
         }
 
@@ -40,141 +43,165 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 90%;
-            max-width: 850px;
+            width: 95%;
+            height: 90vh; /* Ajuste para que no se corte en portátiles */
+            justify-content: center;
         }
 
         #introText {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.4rem);
             line-height: 1.6;
-            min-height: 300px;
-            text-shadow: 0 0 5px var(--neon);
-            white-space: pre-wrap;
+            text-shadow: 0 0 10px var(--neon);
+            text-align: center;
+            max-width: 800px;
         }
 
         .btn {
-            background: transparent;
-            color: var(--neon);
-            border: 2px solid var(--neon);
-            padding: 15px 35px;
+            background: var(--neon);
+            color: black;
+            border: none;
+            padding: 15px 40px;
             font-family: inherit;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            box-shadow: 0 0 20px var(--neon-glow);
+            transition: 0.3s;
             display: none;
-            z-index: 20;
+            z-index: 110;
         }
 
         .btn:hover {
-            background: var(--neon);
-            color: black;
-            box-shadow: 0 0 20px var(--neon);
+            transform: scale(1.1);
+            box-shadow: 0 0 40px var(--neon);
         }
 
-        /* Grid 8x8 */
+        /* Grid Moderno y Rectangular */
         #grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
-            max-width: 700px;
+            max-width: 900px;
+            max-height: 70vh; /* Limita la altura para evitar scroll */
+            padding: 10px;
         }
 
         .card {
-            aspect-ratio: 1 / 1;
-            border: 2px solid var(--neon);
+            background: var(--glass);
+            border: 1px solid var(--neon-glow);
+            border-radius: 4px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            background: #111;
-            font-size: 2.2rem;
-            transition: transform 0.2s;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            transition: all 0.2s ease-out;
+            aspect-ratio: 1.2 / 1; /* Formato algo más rectangular */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
 
-        .card .inner { display: none; }
+        .card:hover {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--neon);
+        }
+
+        .card .inner { 
+            display: none; 
+            filter: drop-shadow(0 0 5px white);
+        }
+        
+        .card.flipped {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-5px);
+        }
+        
         .card.flipped .inner { display: block; }
 
         .card.matched {
-            border-color: transparent;
-            background: transparent;
-            cursor: default;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.5s;
         }
-        .card.matched .inner { opacity: 0.2; }
 
         #timer {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px var(--neon);
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border-bottom: 3px solid var(--neon);
         }
 
-        #countdown { font-size: 3rem; margin-top: 20px; }
+        #countdown { font-size: 4rem; }
     </style>
 </head>
 <body>
 
     <div id="intro">
-        <div id="introText"></div>
+        <div id="introText">HAGA CLIC PARA ESTABLECER CONEXIÓN...</div>
         <button id="startBtn" class="btn" onclick="startGame()">ACCEDER AL SISTEMA</button>
     </div>
 
     <div id="game" style="display: none;">
-        <div id="timer">TIEMPO RESTANTE: 06:00</div>
+        <div id="timer">06:00</div>
         <div id="grid"></div>
     </div>
 
     <div id="final" style="display: none;">
-        <h2>SOLICITUD AUTORIZADA</h2>
-        <p>PRÓXIMA FASE EN:</p>
+        <h1 style="font-size: 3rem;">SISTEMA DESBLOQUEADO</h1>
+        <p>INICIO DE FASE EN:</p>
         <div id="countdown"></div>
     </div>
 
 <script>
-/* 🔊 MOTOR DE AUDIO (ROUTER + EFECTOS) */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(freq, type, duration, vol) {
+/* 🔊 SONIDOS MEJORADOS (MÁS ALTOS Y BIP) */
+function playBip(freq, duration, volume = 0.15) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = type;
+    
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function playRouterSound() {
+    const duration = 2.0;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(2000, audioCtx.currentTime + duration);
+    
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+    
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
 }
 
-// Sonido de Router/Fax antiguo (ruidoso y digital)
-function playRouterSound() {
-    let now = audioCtx.currentTime;
-    for(let i=0; i<30; i++) {
-        let time = now + (i * 0.1);
-        let f = 600 + Math.random() * 1400;
-        let type = i % 2 === 0 ? 'sawtooth' : 'square';
-        
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(f, time);
-        g.gain.setValueAtTime(0.015, time);
-        g.gain.linearRampToValueAtTime(0, time + 0.08);
-        osc.connect(g);
-        g.connect(audioCtx.destination);
-        osc.start(time);
-        osc.stop(time + 0.08);
-    }
-}
-
-/* ✍️ TEXTO ORIGINAL */
+/* 📝 TEXTO ORIGINAL */
 const lines = [
     "DETECTANDO USUARIOS CONECTADOS",
     "PARA VERIFICAR AUTORIZACION",
     "",
-    "YAIZA",
-    "YAEL",
-    "JOEL",
+    "YAIZA", "YAEL", "JOEL",
     "",
     "SOLICITUD AUTORIZADA",
     "",
@@ -183,24 +210,23 @@ const lines = [
     "PARA PASAR A LA SIGUIENTE FASE"
 ];
 
-let currentLine = 0, currentChar = 0;
+let lineIdx = 0, charIdx = 0;
 const introDiv = document.getElementById("introText");
 
 function typeLine() {
-    if (currentLine < lines.length) {
-        let line = lines[currentLine];
-        if (currentChar < line.length) {
-            introDiv.innerHTML += line[currentChar];
-            playSound(180 + Math.random() * 120, 'square', 0.05, 0.02);
-            currentChar++;
-            setTimeout(typeLine, 55);
+    if (lineIdx < lines.length) {
+        let line = lines[lineIdx];
+        if (charIdx < line.length) {
+            introDiv.innerHTML += line[charIdx];
+            playBip(400 + (Math.random() * 200), 0.05, 0.05);
+            charIdx++;
+            setTimeout(typeLine, 50);
         } else {
             introDiv.innerHTML += "<br>";
-            currentLine++;
-            currentChar = 0;
-            let pause = 400;
-            if(["YAIZA", "YAEL", "JOEL"].includes(line)) pause = 1200;
-            if(line === "SOLICITUD AUTORIZADA") pause = 1500;
+            lineIdx++;
+            charIdx = 0;
+            let pause = line === "" ? 200 : 600;
+            if(["YAIZA", "YAEL", "JOEL"].includes(line)) pause = 1000;
             setTimeout(typeLine, pause);
         }
     } else {
@@ -208,22 +234,17 @@ function typeLine() {
     }
 }
 
-// Iniciar al cargar (requiere primer clic del usuario para audio en algunos navegadores)
 window.onclick = () => {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
+        introDiv.innerHTML = "";
         playRouterSound();
         typeLine();
-        window.onclick = null; // Desactivar este evento
+        window.onclick = null;
     }
 };
 
-// Si el navegador permite autoplay:
-window.onload = () => {
-    introDiv.innerHTML = "HAGA CLIC EN CUALQUIER LUGAR PARA CONECTAR...";
-};
-
-/* 🎮 JUEGO 8x8 TEMÁTICO */
+/* 🎮 JUEGO 8x8 */
 const icons = [
     "🏝️","🏖️","🥥","🍹","🍍","🌊","☀️","🚢",
     "🎄","🎅","🎁","❄️","🌟","🔔","🍪","🕯️",
@@ -252,10 +273,10 @@ function startGame() {
         card.innerHTML = `<span class="inner">${item.icon}</span>`;
         card.onclick = () => {
             if(selected.length < 2 && !card.classList.contains('flipped')) {
-                playSound(400, 'sine', 0.1, 0.03);
+                playBip(600, 0.15, 0.2); // Bip más alto al tocar
                 card.classList.add('flipped');
                 selected.push(card);
-                if(selected.length === 2) setTimeout(checkMatch, 600);
+                if(selected.length === 2) setTimeout(checkMatch, 500);
             }
         };
         grid.appendChild(card);
@@ -264,7 +285,7 @@ function startGame() {
     timerInterval = setInterval(() => {
         timeLeft--;
         let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById("timer").innerText = `TIEMPO RESTANTE: ${m}:${s < 10 ? '0'+s : s}`;
+        document.getElementById("timer").innerText = `${m}:${s < 10 ? '0'+s : s}`;
         if(timeLeft <= 0) location.reload();
     }, 1000);
 }
@@ -272,12 +293,12 @@ function startGame() {
 function checkMatch() {
     const [a, b] = selected;
     if (a.dataset.id === b.dataset.id) {
-        playSound(800, 'sine', 0.2, 0.04);
+        playBip(1000, 0.3, 0.25); // Bip de éxito
         a.classList.add('matched'); b.classList.add('matched');
         matchedCount++;
         if(matchedCount === 32) win();
     } else {
-        playSound(150, 'sawtooth', 0.2, 0.03);
+        playBip(200, 0.2, 0.2); // Bip de fallo
         a.classList.remove('flipped'); b.classList.remove('flipped');
     }
     selected = [];
