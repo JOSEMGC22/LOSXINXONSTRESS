@@ -38,6 +38,12 @@ body {
   white-space: pre-line;
   font-size: 14px;
   max-width: 90%;
+}
+
+#warning {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #00ffcc;
   text-shadow: 0 0 10px black;
 }
 
@@ -60,11 +66,15 @@ button {
   justify-content: center;
 }
 
-#timerTop {
+#topInfo {
   text-align: center;
-  font-size: 18px;
   margin-top: 10px;
-  text-shadow: 0 0 10px black;
+}
+
+#timerTop {
+  font-size: 22px;
+  margin-top: 5px;
+  color: #00ffcc;
 }
 
 /* GRID */
@@ -73,7 +83,6 @@ button {
   grid-template-columns: repeat(16, 38px);
   gap: 4px;
   justify-content: center;
-  align-content: center;
   margin: auto;
   padding: 20px;
 }
@@ -89,13 +98,6 @@ button {
   font-size: 18px;
   cursor: pointer;
   border-radius: 8px;
-  transition: 0.2s;
-  user-select: none;
-}
-
-.card:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px #00ffcc;
 }
 
 /* SECRET */
@@ -108,13 +110,11 @@ button {
 #bigTimer {
   font-size: 32px;
   margin: 20px;
-  text-shadow: 0 0 10px black;
 }
 
 a {
   color: #00ffcc;
   font-size: 20px;
-  text-shadow: 0 0 10px black;
 }
 </style>
 </head>
@@ -123,6 +123,14 @@ a {
 
 <div id="intro">
   <div id="terminal"></div>
+
+  <div id="warning">
+    👤 USUARIOS DETECTADOS: YAIZA • YAEL • JOEL<br><br>
+    ⚠️ PARA CONTINUAR DEBEIS CONSEGUIR TERMINAR EL JUEGO EN:
+  </div>
+
+  <div id="timerTop"></div>
+
   <button id="startBtn" style="display:none">INICIAR ACCESO</button>
 </div>
 
@@ -140,7 +148,7 @@ a {
 
 <script>
 
-/* 🔊 AUDIO */
+/* AUDIO */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function beep(f,t){
   let o = audioCtx.createOscillator();
@@ -153,15 +161,15 @@ function beep(f,t){
   o.stop(audioCtx.currentTime + t);
 }
 
-/* 💻 INTRO TYPE */
+/* INTRO */
 const terminal = document.getElementById("terminal");
 
 const text =
 `INICIANDO SISTEMA...
-CARGANDO INTERFAZ...
+CARGANDO PERFIL...
+YAIZA // YAEL // JOEL
 FIREWALL: OK
-SISTEMA: ESTABLE
-DESBLOQUEO DISPONIBLE`;
+SISTEMA LISTO`;
 
 let i = 0;
 
@@ -177,7 +185,7 @@ function type(){
 }
 type();
 
-/* 🎮 GAME */
+/* GAME */
 const emojis = [
 "🏖️","🌴","☀️","🌊","🍹","🕶️","⛱️","🏊",
 "🎆","🍇","🥂","🎉","🌅","🌙","✨","🍾"
@@ -186,7 +194,8 @@ const emojis = [
 let cards = [];
 let selected = [];
 let matched = 0;
-let time = 360;
+
+let gameTime = 360; // ⏳ 6 minutos visibles
 let interval;
 let active = false;
 
@@ -194,13 +203,14 @@ document.getElementById("startBtn").onclick = startGame;
 
 function startGame(){
   beep(600,0.1);
+
   document.getElementById("intro").style.display = "none";
   document.getElementById("game").style.display = "flex";
 
   generate();
   render();
 
-  interval = setInterval(timer,1000);
+  interval = setInterval(updateTimer,1000);
   active = true;
 }
 
@@ -221,9 +231,9 @@ function render(){
   cards.forEach(c=>{
     let d = document.createElement("div");
     d.className = "card";
-    d.innerText = "";
     d.dataset.e = c.e;
     d.dataset.id = c.id;
+    d.innerText = "";
     d.onclick = ()=>flip(d);
     grid.appendChild(d);
   });
@@ -258,17 +268,18 @@ function check(){
   }
 }
 
-/* ⏳ TIMER */
-function timer(){
-  time--;
+/* ⏳ TIMER VISIBLE */
+function updateTimer(){
+  gameTime--;
 
-  let m = Math.floor(time/60);
-  let s = time%60;
+  let m = Math.floor(gameTime/60);
+  let s = gameTime%60;
 
-  document.getElementById("timerTop").innerText =
-    `TIEMPO: ${m}:${s<10?"0"+s:s}`;
+  document.querySelectorAll("#timerTop").forEach(el=>{
+    el.innerText = `TIEMPO RESTANTE: ${m}:${s<10?"0"+s:s}`;
+  });
 
-  if(time<=0){
+  if(gameTime <= 0){
     reset();
   }
 }
@@ -277,17 +288,14 @@ function reset(){
   beep(100,0.3);
   active = false;
   clearInterval(interval);
-  alert("💥 SYSTEM RESET");
+  alert("💥 TIEMPO AGOTADO - SISTEMA REINICIADO");
   location.reload();
 }
 
-/* 🔓 WIN */
+/* WIN */
 function win(){
   active = false;
   clearInterval(interval);
-  beep(1000,0.2);
-  setTimeout(()=>beep(1200,0.2),200);
-  setTimeout(()=>beep(1400,0.3),400);
 
   document.getElementById("game").style.display = "none";
   document.getElementById("secret").style.display = "block";
